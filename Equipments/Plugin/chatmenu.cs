@@ -7,7 +7,7 @@ using static Equipments.Equipments;
 
 namespace Equipments;
 
-public static class Menu
+public static class MenuChat
 {
     public static void AddMenuOption(CCSPlayerController player, ChatMenu menu, Action<CCSPlayerController, ChatMenuOption> onSelect, string display, params object[] args)
     {

@@ -42,7 +42,10 @@ public static class Command
             return;
         }
 
-        Menu.DisplayMenu(player, false);
+        if (Instance.Config.Settings.HudMenu)
+            MenuHud.DisplayMenu(player, false);
+        else
+            MenuChat.DisplayMenu(player, false);
     }
 
     [CommandHelper(minArgs: 1, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]

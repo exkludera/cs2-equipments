@@ -7,18 +7,18 @@ using static EquipmentsAPI.Equipments;
 
 namespace Equipments;
 
-public static class Item_Hats
+public static class Item_Wing
 {
-    private static Dictionary<ulong, CBaseModelEntity> Hats = new();
+    private static Dictionary<ulong, CBaseModelEntity> Equipment = new();
 
     public static void OnPluginStart()
     {
-        Item.RegisterType("hat", OnServerPrecacheResources, OnEquip, OnUnequip, true, null);
+        Item.RegisterType("wing", OnServerPrecacheResources, OnEquip, OnUnequip, true, null);
         Instance.RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
     }
     public static void OnServerPrecacheResources(ResourceManifest manifest)
     {
-        List<KeyValuePair<string, Dictionary<string, string>>> items = Item.GetItemsByType("hat");
+        List<KeyValuePair<string, Dictionary<string, string>>> items = Item.GetItemsByType("wing");
 
         foreach (KeyValuePair<string, Dictionary<string, string>> item in items)
         {
@@ -27,20 +27,20 @@ public static class Item_Hats
     }
     public static bool OnEquip(CCSPlayerController player, Dictionary<string, string> item)
     {
-        EquipHat(player);
+        Equip(player);
         return true;
     }
     public static bool OnUnequip(CCSPlayerController player, Dictionary<string, string> item)
     {
-        UnEquipHat(player);
+        UnEquip(player);
         return true;
     }
 
-    public static void EquipHat(CCSPlayerController player)
+    public static void Equip(CCSPlayerController player)
     {
-        UnEquipHat(player);
+        UnEquip(player);
         Instance.AddTimer(0.1f, () => {
-            Equipments_Items? playerItems = Instance.GlobalEquipmentsItems.FirstOrDefault(p => p.SteamID == player.SteamID && p.Type == "hat");
+            Equipments_Items? playerItems = Instance.GlobalEquipmentsItems.FirstOrDefault(p => p.SteamID == player.SteamID && p.Type == "wing");
             if (playerItems == null) return;
 
             Dictionary<string, string>? itemdata = Item.GetItem(playerItems.Type, playerItems.UniqueId);
@@ -52,12 +52,12 @@ public static class Item_Hats
             CreateItem(player, playerItems.UniqueId);
         });
     }
-    public static void UnEquipHat(CCSPlayerController player)
+    public static void UnEquip(CCSPlayerController player)
     {
-        if (Hats.TryGetValue(player.SteamID, out var entity))
+        if (Equipment.TryGetValue(player.SteamID, out var entity))
         {
             if (entity.IsValid) entity.Remove();
-            Hats.Remove(player.SteamID);
+            Equipment.Remove(player.SteamID);
         }
     }
 
@@ -70,13 +70,13 @@ public static class Item_Hats
             entity.SetModel(itemName);
             entity.DispatchSpawn();
             entity.AcceptInput("FollowEntity", player.PlayerPawn?.Value!, player.PlayerPawn?.Value!, "!activator");
-            Hats[player.SteamID] = entity;
+            Equipment[player.SteamID] = entity;
         });
     }
 
     public static HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
-        EquipHat(@event.Userid!);
+        Equip(@event.Userid!);
         return HookResult.Continue;
     }
 

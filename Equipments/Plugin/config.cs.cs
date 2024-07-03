@@ -26,6 +26,7 @@ public class EquipmentsConfig : BasePluginConfig
     public class Config_Settings
     {
         public string Flag { get; set; } = "@css/reservation";
+        public bool HudMenu { get; set; }
     }
 
     [JsonPropertyName("Database")] public Config_Database Database { get; set; } = new Config_Database();

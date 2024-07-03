@@ -10,7 +10,7 @@ namespace Equipments;
 public class Equipments : BasePlugin, IPluginConfig<EquipmentsConfig>
 {
     public override string ModuleName => "Equipments";
-    public override string ModuleVersion => "0.0.1";
+    public override string ModuleVersion => "0.0.2";
     public override string ModuleAuthor => "exkludera";
 
     public EquipmentsConfig Config { get; set; } = new EquipmentsConfig();
@@ -28,7 +28,9 @@ public class Equipments : BasePlugin, IPluginConfig<EquipmentsConfig>
         Event.Load();
         Command.Load();
 
-        Item_Hats.OnPluginStart();
+        Item_Hat.OnPluginStart();
+        Item_Wing.OnPluginStart();
+        Item_Backpack.OnPluginStart();
 
         if (hotReload)
         {
