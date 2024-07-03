@@ -8,9 +8,9 @@
   "menu<title>": "Equipments",
   "menu<equip>": "EQUIP",
   "menu<unequip>": "UNEQUIP",
-  "menu_item<hats>": "Hats",
-  "menu_item<wings>": "Wings",
-  "menu_item<backpacks>": "Backpacks",
+  "menu_item<hat>": "Hats",
+  "menu_item<wing>": "Wings",
+  "menu_item<backpack>": "Backpacks",
   "menu_item<other>": "Other",
 
   "No matching client": "{white}There is no matching client",
