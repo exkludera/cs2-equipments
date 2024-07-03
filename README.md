@@ -1,5 +1,4 @@
 # cs2-equipments
- CS2 Equipments / Hats / Models  plugin made with CounterStrikeSharp for CS2 
 
 #### with this plugin players can equip models, like hats, wings, backpacks or any similar models
 
