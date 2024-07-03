@@ -1,0 +1,21 @@
+{
+  "prefix": "{orange}[Equipments]",
+
+  "chat<equip>": "{white}You {white}equipped {purple}{0}{white}.",
+  "chat<unequip>": "{white}You {white}unequipped {purple}{0}{white}.",
+  "chat<nopermission>": "{red}You don't have permission to use this command.",
+
+  "menu<title>": "Equipments",
+  "menu<equip>": "EQUIP",
+  "menu<unequip>": "UNEQUIP",
+  "menu_item<hats>": "Hats",
+  "menu_item<wings>": "Wings",
+  "menu_item<backpacks>": "Backpacks",
+  "menu_item<other>": "Other",
+
+  "No matching client": "{white}There is no matching client",
+  "More than one client matched": "{white}There are more than one client matched",
+  "Must be an integer": "{white}The value you entered must be an integer",
+  "Must be higher than zero": "{white}The value you entered must be higher than zero.",
+  "Must be a steamid": "{white}The value you entered must be a valid steamid"
+}
