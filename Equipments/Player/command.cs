@@ -95,7 +95,8 @@ public static class Command
         Server.PrintToChatAll(Instance.Localizer["prefix"] + Instance.Localizer["css_reset", player?.PlayerName ?? "Console", target.PlayerName]);
     }
 
-    [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.SERVER_ONLY)]
+    [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [RequiresPermissions("@css/root")]
     public static void Command_ResetDatabase(CCSPlayerController? player, CommandInfo command)
     {
         if (player != null)

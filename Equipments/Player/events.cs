@@ -19,8 +19,8 @@ public static class Event
     public static void Load()
     {
         Instance.RegisterListener<OnServerPrecacheResources>(OnServerPrecacheResources);
-        Instance.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
         Instance.RegisterListener<OnClientAuthorized>(OnClientAuthorized);
+        Instance.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
     }
 
     public static void OnServerPrecacheResources(ResourceManifest manifest)
