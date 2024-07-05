@@ -62,41 +62,30 @@ public static class MenuChat
             if (item["enable"] != "true")
                 continue;
   
-            AddMenuOption(player, menu, (player, option) =>{
-                DisplayItemOption(player, item);
-            }, item["name"]);
-        }
-
-        MenuManager.OpenChatMenu(player, menu);
-    }
-
-    public static void DisplayItemOption(CCSPlayerController player, Dictionary<string, string> item)
-    {
-        ChatMenu menu = new(item["name"]);
-        menu.ExitButton = true;
-
-        if (Item.PlayerUsing(player, item["type"], item["uniqueid"]))
-        {
-            AddMenuOption(player, menu, (player, option) =>
+            if (Item.PlayerUsing(player, item["type"], item["uniqueid"]))
             {
-                Item.Unequip(player, item);
-
-                player.PrintToChatMessage("chat<unequip>", item["name"]);
-
-                DisplayItemOption(player, item);
-            }, "menu<unequip>");
-        }
-        else
-        {
-            AddMenuOption(player, menu, (player, option) =>
+                AddMenuOption(player, menu, (player, option) =>
+                {
+                    Item.Unequip(player, item);
+                    player.PrintToChatMessage("chat<unequip>", item["name"]);
+                    DisplayItem(player, inventory, key, items);
+                }, item["name"]);
+            }
+            else
             {
-                Item.Equip(player, item);
-
-                player.PrintToChatMessage("chat<equip>", item["name"]);
-
-                DisplayItemOption(player, item);
-            }, "menu<equip>");
+                AddMenuOption(player, menu, (player, option) =>
+                {
+                    Item.Equip(player, item);
+                    player.PrintToChatMessage("chat<equip>", item["name"]);
+                    DisplayItem(player, inventory, key, items);
+                }, item["name"]);
+            }
         }
+
+        AddMenuOption(player, menu, (player, option) =>
+        {
+            DisplayMenu(player, inventory);
+        }, Instance.Localizer["menu<back>"]);
 
         MenuManager.OpenChatMenu(player, menu);
     }

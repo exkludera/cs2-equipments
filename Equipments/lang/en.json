@@ -6,8 +6,7 @@
   "chat<nopermission>": "{red}You don't have permission to use this command.",
 
   "menu<title>": "Equipments",
-  "menu<equip>": "EQUIP",
-  "menu<unequip>": "UNEQUIP",
+  "menu<back>": "-> Back",
   "menu_item<hat>": "Hats",
   "menu_item<wing>": "Wings",
   "menu_item<backpack>": "Backpacks",

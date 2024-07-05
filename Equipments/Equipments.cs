@@ -10,7 +10,7 @@ namespace Equipments;
 public class Equipments : BasePlugin, IPluginConfig<EquipmentsConfig>
 {
     public override string ModuleName => "Equipments";
-    public override string ModuleVersion => "0.0.2";
+    public override string ModuleVersion => "0.0.3";
     public override string ModuleAuthor => "exkludera";
 
     public EquipmentsConfig Config { get; set; } = new EquipmentsConfig();

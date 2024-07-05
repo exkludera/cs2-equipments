@@ -61,42 +61,34 @@ public static class MenuHud
 
             if (item["enable"] != "true")
                 continue;
-  
-            AddMenuOption(player, menu, (player, option) =>{
-                DisplayItemOption(player, item);
-            }, item["name"]);
-        }
 
-        MenuManager.OpenCenterHtmlMenu(Instance, player, menu);
-    }
 
-    public static void DisplayItemOption(CCSPlayerController player, Dictionary<string, string> item)
-    {
-        CenterHtmlMenu menu = new(item["name"], Instance);
-        menu.ExitButton = true;
-
-        if (Item.PlayerUsing(player, item["type"], item["uniqueid"]))
-        {
-            AddMenuOption(player, menu, (player, option) =>
+            if (Item.PlayerUsing(player, item["type"], item["uniqueid"]))
             {
-                Item.Unequip(player, item);
+                AddMenuOption(player, menu, (player, option) =>
+                {
+                    Item.Unequip(player, item);
 
-                player.PrintToChatMessage("chat<unequip>", item["name"]);
+                    player.PrintToChatMessage("chat<unequip>", item["name"]);
 
-                DisplayItemOption(player, item);
-            }, "menu<unequip>");
-        }
-        else
-        {
-            AddMenuOption(player, menu, (player, option) =>
+                    DisplayItem(player, inventory, key, items);
+                }, item["name"]);
+            }
+            else
             {
-                Item.Equip(player, item);
-
-                player.PrintToChatMessage("chat<equip>", item["name"]);
-
-                DisplayItemOption(player, item);
-            }, "menu<equip>");
+                AddMenuOption(player, menu, (player, option) =>
+                {
+                    Item.Equip(player, item);
+                    player.PrintToChatMessage("chat<equip>", item["name"]);
+                    DisplayItem(player, inventory, key, items);
+                }, item["name"]);
+            }
         }
+
+        AddMenuOption(player, menu, (player, option) =>
+        {
+            DisplayMenu(player, inventory);
+        }, Instance.Localizer["menu<back>"]);
 
         MenuManager.OpenCenterHtmlMenu(Instance, player, menu);
     }
