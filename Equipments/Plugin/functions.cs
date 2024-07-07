@@ -11,6 +11,14 @@ public static class Functions
         player.PrintToChat($" {Instance.Localizer["prefix"]} {Instance.Localizer[message, args]}");
     }
 
+    public static bool PlayerAlive(CCSPlayerController player)
+    {
+        if (player == null || !player.IsValid || player.Pawn == null || !player.PlayerPawn.IsValid || !player.PawnIsAlive)
+            return false;
+
+        return true;
+    }
+
     public static string RandomString(int length)
     {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

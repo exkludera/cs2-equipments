@@ -7,10 +7,11 @@
 
   "menu<title>": "Equipments",
   "menu<back>": "-> Back",
+
   "menu_item<hat>": "Hats",
-  "menu_item<wing>": "Wings",
+  "menu_item<wings>": "Wings",
   "menu_item<backpack>": "Backpacks",
-  "menu_item<other>": "Other",
+  "menu_item<trail>": "Trails",
 
   "No matching client": "{white}There is no matching client",
   "More than one client matched": "{white}There are more than one client matched",

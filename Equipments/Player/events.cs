@@ -14,6 +14,7 @@ public static class Event
     {
         Instance.RemoveListener<OnServerPrecacheResources>(OnServerPrecacheResources);
         Instance.RemoveListener<OnClientAuthorized>(OnClientAuthorized);
+        Instance.RemoveListener<OnTick>(OnTick);
     }
 
     public static void Load()
@@ -21,6 +22,7 @@ public static class Event
         Instance.RegisterListener<OnServerPrecacheResources>(OnServerPrecacheResources);
         Instance.RegisterListener<OnClientAuthorized>(OnClientAuthorized);
         Instance.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
+        Instance.RegisterListener<OnTick>(OnTick);
     }
 
     public static void OnServerPrecacheResources(ResourceManifest manifest)
@@ -28,6 +30,24 @@ public static class Event
         Instance.GlobalEquipmentsItemTypes.ForEach((type) => {
             type.ServerPrecacheResources(manifest);
         });
+    }
+
+    public static void OnTick()
+    {
+        Instance.GlobalTickrate++;
+
+        if (Instance.GlobalTickrate % 10 != 0)
+            return;
+
+        Instance.GlobalTickrate = 0;
+
+        foreach (CCSPlayerController player in Utilities.GetPlayers())
+        {
+            if (!Functions.PlayerAlive(player))
+                continue;
+
+            Item_Trail.OnTick(player);
+        }
     }
 
     private static void OnClientAuthorized(int playerSlot, SteamID steamId)

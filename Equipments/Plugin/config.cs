@@ -7,18 +7,18 @@ public class EquipmentsConfig : BasePluginConfig
 {
     public class Config_Database
     {
-        public string Host { get; set; } = string.Empty;
-        public uint Port { get; set; } = 3306;
-        public string User { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
+        public string Host { get; set; } = "localhost";
+        public string User { get; set; } = "username";
+        public string Password { get; set; } = "password";
+        public string DBName { get; set; } = "database";
         public string DBTable { get; set; } = "equipments";
+        public uint Port { get; set; } = 3306;
     }
     [JsonPropertyName("Database")] public Config_Database Database { get; set; } = new Config_Database();
 
     public class Config_Command
     {
-        public string[] OpenMenu { get; set; } = ["equipments", "equipment", "hats", "wings"];
+        public string[] OpenMenu { get; set; } = ["equipments", "equipment"];
         public string[] ResetPlayer { get; set; } = ["equipments-resetplayer"];
         public string[] ResetDatabase { get; set; } = ["equipments-resetdatabase"];
     }
@@ -27,7 +27,7 @@ public class EquipmentsConfig : BasePluginConfig
     public class Config_Settings
     {
         public string Flag { get; set; } = "@css/reservation";
-        public bool HudMenu { get; set; }
+        public bool HudMenu { get; set; } = true;
     }
     [JsonPropertyName("Settings")] public Config_Settings Settings { get; set; } = new Config_Settings();
 

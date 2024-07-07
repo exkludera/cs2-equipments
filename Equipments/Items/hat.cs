@@ -39,7 +39,12 @@ public static class Item_Hat
     public static void Equip(CCSPlayerController player)
     {
         UnEquip(player);
+
         Instance.AddTimer(0.1f, () => {
+
+            if (!Functions.PlayerAlive(player))
+                return;
+
             Equipments_Items? playerItems = Instance.GlobalEquipmentsItems.FirstOrDefault(p => p.SteamID == player.SteamID && p.Type == "hat");
             if (playerItems == null) return;
 
@@ -63,7 +68,7 @@ public static class Item_Hat
 
     public static void CreateItem(CCSPlayerController player, string itemName)
     {
-        var entity = Utilities.CreateEntityByName<CBaseModelEntity>("prop_dynamic_override");
+        var entity = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic_override");
 
         Instance.AddTimer(0.1f, () => {
             entity!.Globalname = $"{player.SteamID}({itemName})#{Functions.RandomString(6)}";

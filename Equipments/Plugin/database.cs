@@ -33,7 +33,7 @@ public static class Database
         MySqlConnectionStringBuilder builder = new()
         {
             Server = config.Database.Host,
-            Database = config.Database.Name,
+            Database = config.Database.DBName,
             UserID = config.Database.User,
             Password = config.Database.Password,
             Port = config.Database.Port,

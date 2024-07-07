@@ -7,18 +7,18 @@ using static EquipmentsAPI.Equipments;
 
 namespace Equipments;
 
-public static class Item_Wing
+public static class Item_Wings
 {
     private static Dictionary<ulong, CBaseModelEntity> Equipment = new();
 
     public static void OnPluginStart()
     {
-        Item.RegisterType("wing", OnServerPrecacheResources, OnEquip, OnUnequip, true, null);
+        Item.RegisterType("wings", OnServerPrecacheResources, OnEquip, OnUnequip, true, null);
         Instance.RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
     }
     public static void OnServerPrecacheResources(ResourceManifest manifest)
     {
-        List<KeyValuePair<string, Dictionary<string, string>>> items = Item.GetItemsByType("wing");
+        List<KeyValuePair<string, Dictionary<string, string>>> items = Item.GetItemsByType("wings");
 
         foreach (KeyValuePair<string, Dictionary<string, string>> item in items)
         {
@@ -39,8 +39,13 @@ public static class Item_Wing
     public static void Equip(CCSPlayerController player)
     {
         UnEquip(player);
+
         Instance.AddTimer(0.1f, () => {
-            Equipments_Items? playerItems = Instance.GlobalEquipmentsItems.FirstOrDefault(p => p.SteamID == player.SteamID && p.Type == "wing");
+
+            if (!Functions.PlayerAlive(player))
+                return;
+
+            Equipments_Items? playerItems = Instance.GlobalEquipmentsItems.FirstOrDefault(p => p.SteamID == player.SteamID && p.Type == "wings");
             if (playerItems == null) return;
 
             Dictionary<string, string>? itemdata = Item.GetItem(playerItems.Type, playerItems.UniqueId);
@@ -63,7 +68,7 @@ public static class Item_Wing
 
     public static void CreateItem(CCSPlayerController player, string itemName)
     {
-        var entity = Utilities.CreateEntityByName<CBaseModelEntity>("prop_dynamic_override");
+        var entity = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic_override");
 
         Instance.AddTimer(0.1f, () => {
             entity!.Globalname = $"{player.SteamID}({itemName})#{Functions.RandomString(6)}";

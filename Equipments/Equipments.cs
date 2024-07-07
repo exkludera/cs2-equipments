@@ -10,13 +10,13 @@ namespace Equipments;
 public class Equipments : BasePlugin, IPluginConfig<EquipmentsConfig>
 {
     public override string ModuleName => "Equipments";
-    public override string ModuleVersion => "0.0.3";
+    public override string ModuleVersion => "0.0.4";
     public override string ModuleAuthor => "exkludera";
 
     public EquipmentsConfig Config { get; set; } = new EquipmentsConfig();
     public List<Equipments_Items> GlobalEquipmentsItems { get; set; } = [];
     public List<Equipments_Item_Types> GlobalEquipmentsItemTypes { get; set; } = [];
-
+    public int GlobalTickrate { get; set; } = 0;
     public static Equipments Instance { get; set; } = new();
 
     public override void Load(bool hotReload)
@@ -29,8 +29,9 @@ public class Equipments : BasePlugin, IPluginConfig<EquipmentsConfig>
         Command.Load();
 
         Item_Hat.OnPluginStart();
-        Item_Wing.OnPluginStart();
+        Item_Wings.OnPluginStart();
         Item_Backpack.OnPluginStart();
+        Item_Trail.OnPluginStart();
 
         if (hotReload)
         {
@@ -48,7 +49,7 @@ public class Equipments : BasePlugin, IPluginConfig<EquipmentsConfig>
 
     public void OnConfigParsed(EquipmentsConfig config)
     {
-        if (string.IsNullOrEmpty(config.Database.Host) || string.IsNullOrEmpty(config.Database.Name) || string.IsNullOrEmpty(config.Database.User))
+        if (string.IsNullOrEmpty(config.Database.Host) || string.IsNullOrEmpty(config.Database.DBName) || string.IsNullOrEmpty(config.Database.User))
             throw new Exception("Setup Database in config!");
 
         Task.Run(async () => {
