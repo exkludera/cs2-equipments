@@ -4,7 +4,9 @@
 
 <details>
 	<summary>showcase</summary>
-    <img src="https://cdn.discordapp.com/attachments/1039451649254629406/1258042180325343285/image.png?ex=668894d5&is=66874355&hm=4bc138e24b2feb9e86d9d16fd4dce44db2b0bb1ccf95d2398cec92e98813ed2e&" width="400">
+	<img src="https://github.com/exkludera/cs2-equipments/assets/51145038/37b60f6f-e1c3-4257-aee8-4bea23e8735a" width="200"> <br>
+	<img src="https://github.com/exkludera/cs2-equipments/assets/51145038/a7eb7832-6c3a-4edb-81cd-a38b3763044d" width="178">
+	<img src="https://github.com/exkludera/cs2-equipments/assets/51145038/e5ba25cf-4f31-4379-bbf5-139c00cb6f56" width="200">
 </details>
 
 <br>
