@@ -1,6 +1,6 @@
 # cs2-equipments
 
-**players can equip models like hats, wings, backpacks or similar models.**
+**players can equip models and particles (like hats and trails)**
 
 <br>
 
