@@ -1,6 +1,5 @@
 # cs2-equipments
-
-**players can equip models and particles (like hats and trails)**
+**this plugin makes players able to equip models and particles (like hats and trails)**
 
 <br>
 
@@ -12,7 +11,7 @@
 </details>
 
 item config example:
-```
+```json
 "Items": {
    "hat": {
       "1": {
@@ -28,6 +27,7 @@ item config example:
 
 <br>
 
+## information
 > [!WARNING]
 > models must have a player bone or it will not attach to the player
 
