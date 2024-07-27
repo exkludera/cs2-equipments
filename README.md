@@ -10,7 +10,25 @@
 	<img src="https://github.com/exkludera/cs2-equipments/assets/51145038/e5ba25cf-4f31-4379-bbf5-139c00cb6f56" width="200">
 </details>
 
-item config example:
+<br>
+
+## information:
+
+
+### requirements
+- [MetaMod](https://cs2.poggu.me/metamod/installation)
+- [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp)
+- [Cruze03/Clientprefs](https://github.com/Cruze03/Clientprefs)
+
+<br>
+
+> [!WARNING]
+> models must have a player bone or it will not attach to the player
+
+> [!IMPORTANT]
+> almost all code is from [schwarper/cs2-store](https://github.com/schwarper/cs2-store) (all credits should go to their efforts)
+
+## example config
 ```json
 "Items": {
    "hat": {
@@ -24,12 +42,3 @@ item config example:
    }
 },
 ```
-
-<br>
-
-## information
-> [!WARNING]
-> models must have a player bone or it will not attach to the player
-
-> [!IMPORTANT]
-> almost all code is from [schwarper/cs2-store](https://github.com/schwarper/cs2-store) (all credits should go to their efforts)
