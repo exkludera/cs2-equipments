@@ -1,5 +1,5 @@
 # cs2-equipments
-**this plugin makes players able to equip models (like hats and trails)**
+**a plugin that allows players to equip models (like hats and backpacks etc)**
 
 <br>
 
