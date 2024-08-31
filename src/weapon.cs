@@ -19,7 +19,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
         return false;
     }
 
-    public bool UnequipWeapon(CCSPlayerController player, string model, bool update)
+    public bool UnequipWeapon(CCSPlayerController player, string category, string model, bool update)
     {
         if (!update)
             return true;
@@ -28,8 +28,14 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
 
         foreach (var equippedItem in equippedItems)
         {
-            if (equippedItem.Value.Weapon == model)
-                return Weapon.HandleEquip(player, model, false);
+            if (equippedItem.Key.Contains($"Equipment-{category}"))
+            {
+                if (Instance.Config.Categories[category].AllowMultiple == false)
+                    Weapon.HandleEquip(player, equippedItem.Value.Weapon, false);
+
+                else if (equippedItem.Value.Weapon == model)
+                    Weapon.HandleEquip(player, model, false);
+            }
         }
 
         return true;
@@ -163,9 +169,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
             {
                 var weaponpart = modelName.Split(':');
                 if (weaponpart.Length != 2)
-                {
                     return false;
-                }
 
                 var weaponName = weaponpart[0];
                 var weaponModel = weaponpart[1];
@@ -177,15 +181,13 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
                     bool equip = weapon == player.PlayerPawn.Value?.WeaponServices?.ActiveWeapon.Value;
 
                     if (isEquip)
-                    {
                         UpdateModel(player, weapon, weaponModel, equip);
-                    }
-                    else
-                    {
-                        ResetWeapon(player, weapon, equip);
-                    }
+
+                    else ResetWeapon(player, weapon, equip);
+
                     return true;
                 }
+
                 else return false;
             }
 

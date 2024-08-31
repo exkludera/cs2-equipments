@@ -96,7 +96,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
                 //UnequipParticle(player, category, file);
                 break;
             case "weapon":
-                UnequipWeapon(player, file, true);
+                UnequipWeapon(player, category, file, true);
                 break;
             default:
                 throw new ArgumentException($"Unknown equipment type: {type}");
