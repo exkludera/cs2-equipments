@@ -1,0 +1,14 @@
+{
+  "menu<title>": "Equipments",
+  "menu<back>": "Back to menu",
+
+  "chat<equip>": "{white}You equipped {purple}{0}{white}.",
+  "chat<unequip>": "{white}You unequipped {purple}{0}{white}.",
+  "chat<nopermission>": "{red}You don't have permission to use this command.",
+
+  "WASD Menu Prefix": "<font color='green'>",
+  "WASD Menu Bottom Text": "<font color='cyan'>[ WASD - To Move ]</font> <br><font color='purple'>[ <img src='https://raw.githubusercontent.com/oqyh/cs2-Kill-Sound-GoldKingZ/main/Resources/tab.gif' class=''> - To Exit ]",
+  "WASD Menu Selection Left": "<img src='https://raw.githubusercontent.com/oqyh/cs2-Kill-Sound-GoldKingZ/main/Resources/left.gif' class=''> <font color='orange'>",
+  "WASD Menu Selection Right": "<img src='https://raw.githubusercontent.com/oqyh/cs2-Kill-Sound-GoldKingZ/main/Resources/right.gif' class=''> <font color='white'>",
+  "WASD Menu Selection Options Below": "<img src='https://raw.githubusercontent.com/oqyh/cs2-Kill-Sound-GoldKingZ/main/Resources/arrow.gif' class=''> <img src='https://raw.githubusercontent.com/oqyh/cs2-Kill-Sound-GoldKingZ/main/Resources/arrow.gif' class=''> <img src='https://raw.githubusercontent.com/oqyh/cs2-Kill-Sound-GoldKingZ/main/Resources/arrow.gif' class=''>"
+}
