@@ -3,34 +3,30 @@ using CounterStrikeSharp.API.Core;
 
 public partial class Plugin : BasePlugin, IPluginConfig<Config>
 {
+    public Dictionary<CCSPlayerController, Dictionary<string, List<CBaseModelEntity>>> playerModels = new();
+
     public HookResult EventPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
         var player = @event.Userid;
 
         if (player == null || !player.IsValid) return HookResult.Continue;
 
-        if (playerCookies.TryGetValue(player, out var cookies))
+        foreach (var item in GetEquippedItems(player))
         {
-            foreach (var category in Config.Menu.Values)
-            {
-                string cookieName = $"Equipment-{category.Title}";
-                if (cookies.TryGetValue(cookieName, out var Category))
-                {
-                    var model = category.Models.FirstOrDefault(m => m.Name.Equals(Category, StringComparison.OrdinalIgnoreCase))!;
-                    Equip(player, model.File, category.Title);
-                }
-            }
+            var equipment = item.Value;
+            if (!string.IsNullOrEmpty(equipment.Model))
+                EquipModel(player, equipment.Model, item.Key.Split('-')[1]);
         }
 
         return HookResult.Continue;
     }
 
-    public void Equip(CCSPlayerController player, string model, string category)
+    public void EquipModel(CCSPlayerController player, string model, string category)
     {
-        if (!playerEquipment.ContainsKey(player))
-            playerEquipment[player] = new();
+        if (!playerModels.ContainsKey(player))
+            playerModels[player] = new Dictionary<string, List<CBaseModelEntity>>();
 
-        Unequip(player, category);
+        UnequipModel(player, category, model);
 
         AddTimer(0.1f, () => {
 
@@ -40,32 +36,55 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
             player.PlayerPawn.Value!.Effects = 1;
             Utilities.SetStateChanged(player.PlayerPawn.Value!, "CBaseEntity", "m_fEffects");
 
-            CreateItem(player, model, category);
+            CreateModel(player, model, category);
         });
     }
 
-    public void Unequip(CCSPlayerController player, string category)
+    public void UnequipModel(CCSPlayerController player, string category, string modelFile)
     {
-        if (playerEquipment.TryGetValue(player, out var equipmentByCategory))
+        if (playerModels.TryGetValue(player, out var equipmentByCategory))
         {
-            if (equipmentByCategory.TryGetValue(category, out var entity) && entity.IsValid)
-                entity.Remove();
-            
-            equipmentByCategory.Remove(category);
+            if (equipmentByCategory.TryGetValue(category, out var models))
+            {
+                if (modelFile == null)
+                {
+                    foreach (var model in models)
+                        if (model.IsValid)
+                            model.Remove();
+
+                    models.Clear();
+                    equipmentByCategory.Remove(category);
+                }
+                else
+                {
+                    var modelToRemove = models.FirstOrDefault(m => m.IsValid && m.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName == modelFile);
+
+                    if (modelToRemove != null)
+                    {
+                        modelToRemove.Remove();
+                        models.Remove(modelToRemove);
+
+                        if (models.Count == 0)
+                            equipmentByCategory.Remove(category);
+                    }
+                }
+            }
         }
     }
 
-    public void CreateItem(CCSPlayerController player, string model, string category)
+    public void CreateModel(CCSPlayerController player, string modelfile, string category)
     {
-        var entity = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic_override");
+        if (!playerModels[player].ContainsKey(category))
+            playerModels[player][category] = new List<CBaseModelEntity>();
+
+        var model = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic_override")!;
 
         AddTimer(0.1f, () => {
-            entity!.Globalname = $"{player.SteamID}({model})#{RandomString(6)}";
-            entity.SetModel(model);
-            entity.DispatchSpawn();
-            entity.AcceptInput("FollowEntity", player.PlayerPawn?.Value!, player.PlayerPawn?.Value!, "!activator");
+            model.SetModel(modelfile);
+            model.DispatchSpawn();
+            model.AcceptInput("FollowEntity", player.PlayerPawn.Value!, player.PlayerPawn.Value!, "!activator");
 
-            playerEquipment[player][category] = entity;
+            playerModels[player][category].Add(model);
         });
     }
 }

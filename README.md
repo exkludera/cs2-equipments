@@ -1,5 +1,5 @@
 # cs2-equipments
-**a plugin that allows players to equip models (like hats and backpacks etc)**
+**a plugin that allows players to equip, models, particles & weapons (like hats, backpacks, trails & custom weapon models)**
 
 <br>
 
@@ -31,11 +31,14 @@
 
 **MenuType** - Default: `"html"` (options: chat/html/wasd) <br>
 
+**AllowMultiple** - Default: `false` (false = only 1 selection per category, true = can equip all at the same time) <br>
 **Permission** - Default: `""` (empty for no check, @css/reservation for vip) <br>
 **Team** - Default: `""` (T for Terrorist, CT for CounterTerrorist or empty for both) <br>
 
 **Name** - Default: `"Model Name"` (the title of the item in the menu) <br>
-**File** - Default: `"models/example.vmdl"` (the file of the model the player will equip) <br>
+**Model** - Default: `""` (model file the player will equip) <br>
+**Particle** - Default: `""` (particle file the player will equip) <br>
+**Weapon** - Default: `""` (weapon model file, use weapon name split by `:` then file `weapon_awp:models/example.vmdl`) <br>
 
 ```json
 {
@@ -45,28 +48,47 @@
   "MenuBackButton": false,
   "Permission": "",
   "Team": "",
-  "Menu": {
-    "1": {
-      "Title": "Hats",
-      "Models": [
+  "Categories": {
+    "Hats": {
+      "AllowMultiple": false,
+      "Equipment": [
         {
-          "Name": "hat",
-          "File": "models/hat.vmdl"
+          "Name": "Hat #1",
+          "Model": "models/example_1.vmdl"
         },
         {
-          "Name": "hat 2",
-          "File": "models/hat_2.vmdl"
+          "Name": "Hat #2",
+          "Model": "models/example_2.vmdl"
         }
       ]
     },
-    "2": {
-      "Title": "Backpacks",
+    "Particles": {
+      "AllowMultiple": true,
       "Permission": "@css/reservation",
       "Team": "CT",
-      "Models": [
+      "Equipment": [
         {
-          "Name": "backpack",
-          "File": "models/backpack.vmdl"
+          "Name": "Particle #1",
+          "Particle": "particles/example_1.vpcf"
+        },
+        {
+          "Name": "Particle #2",
+          "Particle": "particles/example_2.vpcf"
+        }
+      ]
+    },
+    "Weapons": {
+      "AllowMultiple": true,
+      "Equipment": [
+        {
+          "Permission": "@css/root",
+          "Team": "T",
+          "Name": "Custom AK47",
+          "Weapon": "weapon_ak47:models/example_ak47.vmdl"
+        },
+        {
+          "Name": "Custom AWP",
+          "Weapon": "weapon_awp:models/example_awp.vmdl"
         }
       ]
     }

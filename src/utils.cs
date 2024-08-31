@@ -16,14 +16,90 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
         return (string.IsNullOrEmpty(permission) || AdminManager.PlayerHasPermissions(player, permission)) && isTeamValid;
     }
 
-    public string RandomString(int length)
+    public string DetermineEquipmentType(Equipment equipment)
     {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        var random = new Random();
-        var result = new char[length];
-        for (int i = 0; i < length; i++)
-            result[i] = chars[random.Next(chars.Length)];
+        if (!string.IsNullOrEmpty(equipment.Model)) return "model";
+        if (!string.IsNullOrEmpty(equipment.Particle)) return "particle";
+        if (!string.IsNullOrEmpty(equipment.Weapon)) return "weapon";
+        return "unknown";
+    }
 
-        return new string(result);
+    public string GetEquipmentFilePath(Equipment equipment, string type)
+    {
+        return type switch
+        {
+            "model" => equipment.Model,
+            "particle" => equipment.Particle,
+            "weapon" => equipment.Weapon,
+            _ => throw new ArgumentException($"Unknown equipment type: {type}")
+        };
+    }
+
+    public Dictionary<string, Equipment> GetEquippedItems(CCSPlayerController player)
+    {
+        var equippedItems = new Dictionary<string, Equipment>();
+
+        if (playerCookies.TryGetValue(player, out var cookies))
+        {
+            foreach (var category in Config.Categories)
+            {
+                if (category.Value.AllowMultiple)
+                {
+                    foreach (var equipment in category.Value.Equipment)
+                    {
+                        string cookieName = $"Equipment-{category.Key}-{equipment.Name}";
+                        if (cookies.TryGetValue(cookieName, out var equippedName) && equippedName == equipment.Name)
+                            equippedItems[cookieName] = equipment;
+                    }
+                }
+                else
+                {
+                    string cookieName = $"Equipment-{category.Key}";
+                    if (cookies.TryGetValue(cookieName, out var equippedName))
+                    {
+                        var equipment = category.Value.Equipment.FirstOrDefault(m => m.Name.Equals(equippedName, StringComparison.OrdinalIgnoreCase));
+                        if (equipment != null)
+                            equippedItems[cookieName] = equipment;
+                    }
+                }
+            }
+        }
+
+        return equippedItems;
+    }
+
+
+    public void EquipBasedOnType(CCSPlayerController player, Equipment equipment, string category)
+    {
+        if (!string.IsNullOrEmpty(equipment.Model))
+        {
+            EquipModel(player, equipment.Model, category);
+        }
+        else if (!string.IsNullOrEmpty(equipment.Particle))
+        {
+            //EquipParticle(player, equipment.Particle, category);
+        }
+        else if (!string.IsNullOrEmpty(equipment.Weapon))
+        {
+            EquipWeapon(player, equipment.Weapon);
+        }
+    }
+
+    public void UnequipBasedOnType(CCSPlayerController player, string type, string category, string file)
+    {
+        switch (type)
+        {
+            case "model":
+                UnequipModel(player, category, file);
+                break;
+            case "particle":
+                //UnequipParticle(player, category, file);
+                break;
+            case "weapon":
+                UnequipWeapon(player, file, true);
+                break;
+            default:
+                throw new ArgumentException($"Unknown equipment type: {type}");
+        }
     }
 }

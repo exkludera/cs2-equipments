@@ -10,7 +10,7 @@ using static CounterStrikeSharp.API.Core.Listeners;
 public partial class Plugin : BasePlugin, IPluginConfig<Config>
 {
     public override string ModuleName => "Equipments";
-    public override string ModuleVersion => "1.0.0";
+    public override string ModuleVersion => "1.0.1";
     public override string ModuleAuthor => "exkludera";
 
     public static Plugin Instance { get; set; } = new();
@@ -20,12 +20,45 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
 
     public Dictionary<string, int> equipmentCookies = new();
     public Dictionary<CCSPlayerController, Dictionary<string, string>> playerCookies = new();
-    public Dictionary<CCSPlayerController, Dictionary<string, CBaseModelEntity>> playerEquipment = new();
+
+    public Config Config { get; set; } = new Config();
+    public void OnConfigParsed(Config config)
+    {
+        Config = config;
+        Config.Prefix = StringExtensions.ReplaceColorTags(Config.Prefix);
+    }
+
+    public void OnServerPrecacheResources(ResourceManifest manifest)
+    {
+        foreach (var category in Config.Categories.Values)
+        {
+            foreach (var equipment in category.Equipment)
+            {
+                if (!string.IsNullOrEmpty(equipment.Model))
+                    manifest.AddResource(equipment.Model);
+
+                if (!string.IsNullOrEmpty(equipment.Particle))
+                    manifest.AddResource(equipment.Particle);
+
+                if (!string.IsNullOrEmpty(equipment.Weapon))
+                {
+                    var weaponpart = equipment.Weapon.Split(':');
+                    if (weaponpart.Length != 2)
+                        continue;
+
+                    manifest.AddResource(weaponpart[1]);
+                }
+            }
+        }
+    }
 
     public override void Load(bool hotReload)
     {
+        RegisterListener<OnTick>(OnTick);
+        RegisterListener<OnEntityCreated>(OnEntityCreated);
         RegisterListener<OnServerPrecacheResources>(OnServerPrecacheResources);
         RegisterEventHandler<EventPlayerSpawn>(EventPlayerSpawn);
+        RegisterEventHandler<EventItemEquip>(EventItemEquip);
 
         Instance = this;
 
@@ -37,13 +70,20 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
 
     public override void Unload(bool hotReload)
     {
+        RemoveListener<OnTick>(OnTick);
+        RemoveListener<OnEntityCreated>(OnEntityCreated);
         RemoveListener<OnServerPrecacheResources>(OnServerPrecacheResources);
         DeregisterEventHandler<EventPlayerSpawn>(EventPlayerSpawn);
+        DeregisterEventHandler<EventItemEquip>(EventItemEquip);
+
+        Menu.Unload();
 
         foreach (var command in Config.MenuCommands.Split(','))
             RemoveCommand(command.Trim(), Menu.Command_OpenMenus!);
 
-        if (ClientprefsApi == null) return;
+        if (ClientprefsApi == null)
+            return;
+
         ClientprefsApi.OnDatabaseLoaded -= OnClientprefDatabaseReady;
         ClientprefsApi.OnPlayerCookiesCached -= OnPlayerCookiesCached;
     }
@@ -54,7 +94,9 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
         {
             ClientprefsApi = g_PluginCapability.Get();
 
-            if (ClientprefsApi == null) return;
+            if (ClientprefsApi == null)
+                return;
+
             ClientprefsApi.OnDatabaseLoaded += OnClientprefDatabaseReady;
             ClientprefsApi.OnPlayerCookiesCached += OnPlayerCookiesCached;
         }
@@ -68,10 +110,10 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
         {
             foreach (CCSPlayerController player in Utilities.GetPlayers().Where(p => !p.IsBot))
             {
-                if (!playerCookies.ContainsKey(player))
-                    playerCookies[player] = new Dictionary<string, string>();
+                if (!ClientprefsApi!.ArePlayerCookiesCached(player))
+                    continue;
 
-                if (!ClientprefsApi!.ArePlayerCookiesCached(player)) continue;
+                playerCookies[player] = new Dictionary<string, string>();
 
                 foreach (var item in equipmentCookies)
                 {
@@ -86,54 +128,71 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
 
     public void OnClientprefDatabaseReady()
     {
-        if (ClientprefsApi == null) return;
+        if (ClientprefsApi == null)
+            return;
 
-        foreach (var category in Config.Menu.Values)
+        foreach (var category in Config.Categories)
         {
-            string cookieName = $"Equipment-{category.Title}";
-            int cookieId = ClientprefsApi.RegPlayerCookie(cookieName, $"Which Equipment in {category.Title}", CookieAccess.CookieAccess_Protected);
-
-            if (cookieId == -1)
+            if (category.Value.AllowMultiple)
             {
-                Logger.LogError($"[Clientprefs] Failed to register/load Cookie for {cookieName}");
-                return;
+                foreach (var equipment in category.Value.Equipment)
+                {
+                    string cookieName = $"Equipment-{category.Key}-{equipment.Name}";
+                    int cookieId = ClientprefsApi.RegPlayerCookie(cookieName, $"{equipment.Name} in {category.Key}", CookieAccess.CookieAccess_Protected);
+                    
+                    if (cookieId == -1)
+                    {
+                        Logger.LogError($"[Clientprefs] Failed to register/load Cookie for {cookieName}");
+                        return;
+                    }
+
+                    equipmentCookies[cookieName] = cookieId;
+                }
             }
-            equipmentCookies[cookieName] = cookieId;
+            else
+            {
+                string cookieName = $"Equipment-{category.Key}";
+                int cookieId = ClientprefsApi.RegPlayerCookie(cookieName, $"Which Equipment in {category.Key}", CookieAccess.CookieAccess_Protected);
+                
+                if (cookieId == -1)
+                {
+                    Logger.LogError($"[Clientprefs] Failed to register/load Cookie for {cookieName}");
+                    return;
+                }
+
+                equipmentCookies[cookieName] = cookieId;
+            }
         }
     }
 
     public void OnPlayerCookiesCached(CCSPlayerController player)
     {
-        if (ClientprefsApi == null) return;
+        if (ClientprefsApi == null)
+            return;
 
-        if (!playerCookies.ContainsKey(player))
-            playerCookies[player] = new Dictionary<string, string>();
+        playerCookies[player] = new Dictionary<string, string>();
 
-        foreach (var item in equipmentCookies)
+        foreach (var category in Config.Categories)
         {
-            var cookieValue = ClientprefsApi.GetPlayerCookie(player, item.Value);
-
-            if (!string.IsNullOrEmpty(cookieValue))
-                playerCookies[player][item.Key] = cookieValue;
-        }
-    }
-
-    public void OnServerPrecacheResources(ResourceManifest manifest)
-    {
-        foreach (var category in Config.Menu.Values)
-        {
-            foreach (var model in category.Models)
+            if (category.Value.AllowMultiple)
             {
-                if (!string.IsNullOrEmpty(model.File))
-                    manifest.AddResource(model.File);
+                foreach (var equipment in category.Value.Equipment)
+                {
+                    string cookieName = $"Equipment-{category.Key}-{equipment.Name}";
+                    string cookieValue = ClientprefsApi.GetPlayerCookie(player, equipmentCookies[cookieName]);
+
+                    if (!string.IsNullOrEmpty(cookieValue))
+                        playerCookies[player][cookieName] = cookieValue;
+                }
+            }
+            else
+            {
+                string cookieName = $"Equipment-{category.Key}";
+                var cookieValue = ClientprefsApi.GetPlayerCookie(player, equipmentCookies[cookieName]);
+
+                if (!string.IsNullOrEmpty(cookieValue))
+                    playerCookies[player][cookieName] = cookieValue;
             }
         }
-    }
-
-    public Config Config { get; set; } = new Config();
-    public void OnConfigParsed(Config config)
-    {
-        Config = config;
-        Config.Prefix = StringExtensions.ReplaceColorTags(Config.Prefix);
     }
 }

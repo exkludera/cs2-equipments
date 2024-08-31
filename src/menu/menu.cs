@@ -1,6 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
+using Microsoft.Extensions.Logging;
 using static CounterStrikeSharp.API.Core.Listeners;
 
 public static partial class Menu
@@ -123,33 +124,66 @@ public static partial class Menu
         }
     }
 
-    private static void ExecuteOption(CCSPlayerController player, Model model, string category)
+    private static void ExecuteOption(CCSPlayerController player, Equipment equipment, string category)
     {
-        string cookieName = $"Equipment-{category}";
+        bool allowMultiple = Instance.Config.Categories[category].AllowMultiple;
 
-        if (Instance.playerCookies.TryGetValue(player, out var playerCookieDict) &&
-            playerCookieDict.TryGetValue(cookieName, out var equippedModelName) &&
-            equippedModelName == model.Name)
+        string cookieName = allowMultiple ?
+            $"Equipment-{category}-{equipment.Name}" :
+            $"Equipment-{category}";
+
+        string equippedType = Instance.DetermineEquipmentType(equipment);
+        string filePath = Instance.GetEquipmentFilePath(equipment, equippedType);
+
+        if (Instance.playerCookies.TryGetValue(player, out var playerCookieDict))
         {
-            Instance.Unequip(player, category);
-
-            Instance.playerCookies[player].Remove(cookieName);
-
-            player.PrintToChat(Instance.Config.Prefix + Instance.Localizer["chat<unequip>", model.Name]);
-        }
-        else
-        {
-            Instance.Equip(player, model.File, category);
-
-            Instance.playerCookies[player][cookieName] = model.Name;
-
-            if (Instance.equipmentCookies.ContainsKey(cookieName))
+            if (!allowMultiple)
             {
-                int cookieId = Instance.equipmentCookies[cookieName];
-                Instance.ClientprefsApi?.SetPlayerCookie(player, cookieId, model.Name);
-            }
+                if (playerCookieDict.TryGetValue(cookieName, out var currentEquippedName) && currentEquippedName == equipment.Name)
+                {
+                    Instance.UnequipBasedOnType(player, equippedType, category, filePath);
+                    playerCookieDict.Remove(cookieName);
+                    player.PrintToChat(Instance.Config.Prefix + Instance.Localizer[$"chat<unequip>", equipment.Name]);
+                    return;
+                }
+                else
+                {
+                    var keysToRemove = new List<string>();
 
-            player.PrintToChat(Instance.Config.Prefix + Instance.Localizer["chat<equip>", model.Name]);
+                    foreach (var key in playerCookieDict.Keys.ToList())
+                    {
+                        if (key.StartsWith($"Equipment-{category}"))
+                        {
+                            Instance.UnequipBasedOnType(player, equippedType, category, null!);
+                            keysToRemove.Add(key);
+                            //player.PrintToChat(Instance.Config.Prefix + Instance.Localizer[$"chat<unequip>", playerCookieDict[key]]);
+                        }
+                    }
+
+                    foreach (var key in keysToRemove)
+                        playerCookieDict.Remove(key);
+                }
+            }
+            else
+            {
+                if (playerCookieDict.TryGetValue(cookieName, out var currentEquippedName) && currentEquippedName == equipment.Name)
+                {
+                    Instance.UnequipBasedOnType(player, equippedType, category, filePath);
+                    playerCookieDict.Remove(cookieName);
+                    player.PrintToChat(Instance.Config.Prefix + Instance.Localizer[$"chat<unequip>", equipment.Name]);
+                    return;
+                }
+            }
         }
+
+        if (Instance.equipmentCookies.TryGetValue(cookieName, out var cookieId))
+            Instance.ClientprefsApi?.SetPlayerCookie(player, cookieId, equipment.Name);
+
+        else Instance.Logger.LogError($"Cookie ID not found for key {cookieName}. Ensure the cookies are correctly created and registered.");
+
+        Instance.playerCookies[player][cookieName] = equipment.Name;
+        Instance.EquipBasedOnType(player, equipment, category);
+
+        player.PrintToChat(Instance.Config.Prefix + Instance.Localizer["chat<equip>", equipment.Name]);
     }
 }

@@ -1,5 +1,4 @@
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Core.Attributes;
 
 namespace Clientprefs.API;
 
@@ -111,7 +110,7 @@ public interface IClientprefsApi
     /// </summary>
     /// <param name="handler">Handler to set steamId cookie.</param>
     public void SetPlayerCookie(string steamId, int cookieId, string name);
-    
+
     /// <summary>
     /// Get the value of a Player preference cookie.
     /// </summary>
