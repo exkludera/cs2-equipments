@@ -53,7 +53,7 @@
           "Name": "hat",
           "File": "models/hat.vmdl"
         },
-		{
+        {
           "Name": "hat 2",
           "File": "models/hat_2.vmdl"
         }

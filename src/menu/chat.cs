@@ -40,7 +40,7 @@ public static partial class Menu
         {
             subMenu.AddMenuOption(Instance.Localizer["menu<back>"], (player, menuOption) =>
             {
-                Open_HTML(player);
+                Open_Chat(player);
             });
         }
 

@@ -39,7 +39,7 @@ public static partial class Menu
         {
             subMenu.Add(Instance.Localizer["menu<back>"], (player, menuOption) =>
             {
-                Open_HTML(player);
+                Open_WASD(player);
             });
         }
 
