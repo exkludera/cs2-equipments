@@ -106,25 +106,25 @@ public static partial class Menu
         {
             case "chat":
             case "text":
-                Open_Chat(player);
+                MenuChat.Open_MainMenu(player);
                 break;
             case "html":
             case "center":
             case "centerhtml":
             case "hud":
-                Open_HTML(player);
+                MenuHTML.Open_MainMenu(player);
                 break;
             case "wasd":
             case "wasdmenu":
-                Open_WASD(player);
+                MenuWASD.Open_MainMenu(player);
                 break;
             default:
-                Open_HTML(player);
+                MenuHTML.Open_MainMenu(player);
                 break;
         }
     }
 
-    private static void ExecuteOption(CCSPlayerController player, Equipment equipment, string category)
+    public static void ExecuteOption(CCSPlayerController player, Equipment equipment, string category)
     {
         bool allowMultiple = Instance.Config.Categories[category].AllowMultiple;
 
@@ -135,12 +135,15 @@ public static partial class Menu
         string equippedType = Instance.DetermineEquipmentType(equipment);
         string filePath = Instance.GetEquipmentFilePath(equipment, equippedType);
 
-        if (Instance.playerCookies.TryGetValue(player, out var playerCookieDict))
+        if (Instance.playerCookies.TryGetValue(player.Slot, out var playerCookieDict))
         {
             if (!allowMultiple)
             {
                 if (playerCookieDict.TryGetValue(cookieName, out var currentEquippedName) && currentEquippedName == equipment.Name)
                 {
+                    if (Instance.equipmentCookies.TryGetValue(cookieName, out var EmptycookieId))
+                        Instance.ClientprefsApi?.SetPlayerCookie(player, EmptycookieId, "empty");
+
                     Instance.UnequipBasedOnType(player, equippedType, category, filePath);
                     playerCookieDict.Remove(cookieName);
                     player.PrintToChat(Instance.Config.Prefix + Instance.Localizer[$"chat<unequip>", equipment.Name]);
@@ -168,6 +171,9 @@ public static partial class Menu
             {
                 if (playerCookieDict.TryGetValue(cookieName, out var currentEquippedName) && currentEquippedName == equipment.Name)
                 {
+                    if (Instance.equipmentCookies.TryGetValue(cookieName, out var EmptycookieId))
+                        Instance.ClientprefsApi?.SetPlayerCookie(player, EmptycookieId, "empty");
+
                     Instance.UnequipBasedOnType(player, equippedType, category, filePath);
                     playerCookieDict.Remove(cookieName);
                     player.PrintToChat(Instance.Config.Prefix + Instance.Localizer[$"chat<unequip>", equipment.Name]);
@@ -181,7 +187,7 @@ public static partial class Menu
 
         else Instance.Logger.LogError($"Cookie ID not found for key {cookieName}. Ensure the cookies are correctly created and registered.");
 
-        Instance.playerCookies[player][cookieName] = equipment.Name;
+        Instance.playerCookies[player.Slot][cookieName] = equipment.Name;
         Instance.EquipBasedOnType(player, equipment, category);
 
         player.PrintToChat(Instance.Config.Prefix + Instance.Localizer["chat<equip>", equipment.Name]);

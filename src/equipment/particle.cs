@@ -16,7 +16,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
 
         foreach (CCSPlayerController player in Utilities.GetPlayers().Where(p => !p.IsBot))
         {
-            if (!player.PawnIsAlive || !playerCookies.ContainsKey(player))
+            if (!player.PawnIsAlive || !playerCookies.ContainsKey(player.Slot))
                 continue;
 
             foreach (var item in GetEquippedItems(player))

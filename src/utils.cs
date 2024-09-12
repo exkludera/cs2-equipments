@@ -39,7 +39,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
     {
         var equippedItems = new Dictionary<string, Equipment>();
 
-        if (playerCookies.TryGetValue(player, out var cookies))
+        if (playerCookies.TryGetValue(player.Slot, out var cookies))
         {
             foreach (var category in Config.Categories)
             {
@@ -67,7 +67,6 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
 
         return equippedItems;
     }
-
 
     public void EquipBasedOnType(CCSPlayerController player, Equipment equipment, string category)
     {

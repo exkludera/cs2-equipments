@@ -194,7 +194,6 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
             return true;
         }
 
-
         private static CBasePlayerWeapon? Get(CCSPlayerController player, string weaponName)
         {
             CPlayer_WeaponServices? weaponServices = player.PlayerPawn?.Value?.WeaponServices;

@@ -10,7 +10,7 @@ using static CounterStrikeSharp.API.Core.Listeners;
 public partial class Plugin : BasePlugin, IPluginConfig<Config>
 {
     public override string ModuleName => "Equipments";
-    public override string ModuleVersion => "1.0.1";
+    public override string ModuleVersion => "1.0.2";
     public override string ModuleAuthor => "exkludera";
 
     public static Plugin Instance { get; set; } = new();
@@ -19,7 +19,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
     public IClientprefsApi? ClientprefsApi;
 
     public Dictionary<string, int> equipmentCookies = new();
-    public Dictionary<CCSPlayerController, Dictionary<string, string>> playerCookies = new();
+    public Dictionary<int, Dictionary<string, string>> playerCookies = new();
 
     public Config Config { get; set; } = new Config();
     public void OnConfigParsed(Config config)
@@ -54,13 +54,13 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
 
     public override void Load(bool hotReload)
     {
+        Instance = this;
+
         RegisterListener<OnTick>(OnTick);
         RegisterListener<OnEntityCreated>(OnEntityCreated);
         RegisterListener<OnServerPrecacheResources>(OnServerPrecacheResources);
         RegisterEventHandler<EventPlayerSpawn>(EventPlayerSpawn);
         RegisterEventHandler<EventItemEquip>(EventItemEquip);
-
-        Instance = this;
 
         Menu.Load(hotReload);
 
@@ -102,27 +102,15 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
         }
         catch (Exception ex)
         {
-            Logger.LogError("[Trails] Fail load ClientprefsApi! | " + ex.Message);
-            throw new Exception("[Trails] Fail load ClientprefsApi! | " + ex.Message);
+            throw new Exception("[Equipments] Failed to load ClientprefsApi! | " + ex.Message);
         }
 
         if (hotReload && ClientprefsApi != null)
         {
+            OnClientprefDatabaseReady();
+
             foreach (CCSPlayerController player in Utilities.GetPlayers().Where(p => !p.IsBot))
-            {
-                if (!ClientprefsApi!.ArePlayerCookiesCached(player))
-                    continue;
-
-                playerCookies[player] = new Dictionary<string, string>();
-
-                foreach (var item in equipmentCookies)
-                {
-                    var cookieValue = ClientprefsApi.GetPlayerCookie(player, item.Value);
-
-                    if (!string.IsNullOrEmpty(cookieValue))
-                        playerCookies[player][item.Key] = cookieValue;
-                }
-            }
+                OnPlayerCookiesCached(player);
         }
     }
 
@@ -142,7 +130,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
                     
                     if (cookieId == -1)
                     {
-                        Logger.LogError($"[Clientprefs] Failed to register/load Cookie for {cookieName}");
+                        Logger.LogError($"[Equipments] Failed to register/load Cookie for {cookieName}");
                         return;
                     }
 
@@ -156,7 +144,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
                 
                 if (cookieId == -1)
                 {
-                    Logger.LogError($"[Clientprefs] Failed to register/load Cookie for {cookieName}");
+                    Logger.LogError($"[Equipments] Failed to register/load Cookie for {cookieName}");
                     return;
                 }
 
@@ -170,7 +158,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
         if (ClientprefsApi == null)
             return;
 
-        playerCookies[player] = new Dictionary<string, string>();
+        playerCookies[player.Slot] = new Dictionary<string, string>();
 
         foreach (var category in Config.Categories)
         {
@@ -182,7 +170,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
                     string cookieValue = ClientprefsApi.GetPlayerCookie(player, equipmentCookies[cookieName]);
 
                     if (!string.IsNullOrEmpty(cookieValue))
-                        playerCookies[player][cookieName] = cookieValue;
+                        playerCookies[player.Slot][cookieName] = cookieValue;
                 }
             }
             else
@@ -191,7 +179,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
                 var cookieValue = ClientprefsApi.GetPlayerCookie(player, equipmentCookies[cookieName]);
 
                 if (!string.IsNullOrEmpty(cookieValue))
-                    playerCookies[player][cookieName] = cookieValue;
+                    playerCookies[player.Slot][cookieName] = cookieValue;
             }
         }
     }

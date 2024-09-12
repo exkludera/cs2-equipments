@@ -1,8 +1,10 @@
 ﻿using CounterStrikeSharp.API.Core;
 
-public static partial class Menu
+public static class MenuWASD
 {
-    public static void Open_WASD(CCSPlayerController player)
+    private static Plugin Instance = Plugin.Instance;
+
+    public static void Open_MainMenu(CCSPlayerController player)
     {
         var mainMenu = WasdManager.CreateMenu(Instance.Localizer["menu<title>"]);
 
@@ -13,25 +15,34 @@ public static partial class Menu
 
             mainMenu.Add(category.Key, (player, menuOption) =>
             {
-                Open_WASD_SubMenu(player, category.Value, category.Key);
+                Open_SubMenu(player, category.Value, category.Key);
             });
         }
 
         WasdManager.OpenMainMenu(player, mainMenu);
     }
 
-    public static void Open_WASD_SubMenu(CCSPlayerController player, MenuCategory category, string title)
+    public static void Open_SubMenu(CCSPlayerController player, MenuCategory category, string title)
     {
         var subMenu = WasdManager.CreateMenu(title);
+
+        var equippedItems = Instance.GetEquippedItems(player);
 
         foreach (var equipment in category.Equipment)
         {
             if (!Instance.HasPermission(player, equipment.Permission.ToLower(), equipment.Team.ToLower()))
                 continue;
 
-            subMenu.Add(equipment.Name, (player, menuOption) =>
+            bool isEquipped = equippedItems.Values.Any(e => e.Name.Equals(equipment.Name, StringComparison.OrdinalIgnoreCase));
+
+            string itemTitle = isEquipped
+                ? $"{equipment.Name} {Instance.Localizer["menu<equipped>"]}"
+                : $"{equipment.Name}";
+
+            subMenu.Add(itemTitle, (player, menuOption) =>
             {
-                ExecuteOption(player, equipment, title);
+                Menu.ExecuteOption(player, equipment, title);
+                Open_SubMenu(player, category, title);
             });
         }
 
@@ -39,7 +50,7 @@ public static partial class Menu
         {
             subMenu.Add(Instance.Localizer["menu<back>"], (player, menuOption) =>
             {
-                Open_WASD(player);
+                Open_MainMenu(player);
             });
         }
 
