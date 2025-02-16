@@ -19,6 +19,8 @@
 - [MetaMod](https://github.com/alliedmodders/metamod-source)
 - [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp)
 - [Cruze03/Clientprefs](https://github.com/Cruze03/Clientprefs)
+- [Interesting-exe/WASDMenuAPI](https://github.com/Interesting-exe/WASDMenuAPI) (optional)
+- [T3Marius/CS2ScreenMenuAPI](https://github.com/T3Marius/CS2ScreenMenuAPI) (optional)
 
 <br>
 
@@ -29,7 +31,7 @@
 
 ## example config
 
-**MenuType** - Default: `"html"` (options: chat/html/wasd) <br>
+**MenuType** - Default: `"html"` (options: chat/html/wasd/screen) <br>
 
 **AllowMultiple** - Default: `false` (false = only 1 selection per category, true = can equip all at the same time) <br>
 **Permission** - Default: `""` (empty for no check, @css/reservation for vip) <br>
