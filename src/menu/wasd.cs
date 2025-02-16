@@ -1,59 +1,64 @@
 ﻿using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Capabilities;
+using WASDSharedAPI;
 
-public static class MenuWASD
+public static partial class Menu
 {
-    private static Plugin Instance = Plugin.Instance;
-
-    public static void Open_MainMenu(CCSPlayerController player)
+    public static class WASD
     {
-        var mainMenu = WasdManager.CreateMenu(Instance.Localizer["menu<title>"]);
+        public static IWasdMenuManager WasdManager = new PluginCapability<IWasdMenuManager>("wasdmenu:manager").Get()!;
 
-        foreach (var category in Instance.Config.Categories)
+        public static void MainMenu(CCSPlayerController player)
         {
-            if (!Instance.HasPermission(player, category.Value.Permission.ToLower(), category.Value.Team.ToLower()))
-                continue;
+            var mainMenu = WasdManager.CreateMenu(Instance.Localizer["menu<title>"]);
 
-            mainMenu.Add(category.Key, (player, menuOption) =>
+            foreach (var category in Instance.Config.Categories)
             {
-                Open_SubMenu(player, category.Value, category.Key);
-            });
+                if (!Instance.HasPermission(player, category.Value.Permission.ToLower(), category.Value.Team.ToLower()))
+                    continue;
+
+                mainMenu.Add(category.Key, (player, menuOption) =>
+                {
+                    SubMenu(player, category.Value, category.Key);
+                });
+            }
+
+            WasdManager.OpenMainMenu(player, mainMenu);
         }
 
-        WasdManager.OpenMainMenu(player, mainMenu);
-    }
-
-    public static void Open_SubMenu(CCSPlayerController player, MenuCategory category, string title)
-    {
-        var subMenu = WasdManager.CreateMenu(title);
-
-        var equippedItems = Instance.GetEquippedItems(player);
-
-        foreach (var equipment in category.Equipment)
+        public static void SubMenu(CCSPlayerController player, MenuCategory category, string title)
         {
-            if (!Instance.HasPermission(player, equipment.Permission.ToLower(), equipment.Team.ToLower()))
-                continue;
+            var subMenu = WasdManager.CreateMenu(title);
 
-            bool isEquipped = equippedItems.Values.Any(e => e.Name.Equals(equipment.Name, StringComparison.OrdinalIgnoreCase));
+            var equippedItems = Instance.GetEquippedItems(player);
 
-            string itemTitle = isEquipped
-                ? $"{equipment.Name} {Instance.Localizer["menu<equipped>"]}"
-                : $"{equipment.Name}";
-
-            subMenu.Add(itemTitle, (player, menuOption) =>
+            foreach (var equipment in category.Equipment)
             {
-                Menu.ExecuteOption(player, equipment, title);
-                Open_SubMenu(player, category, title);
-            });
-        }
+                if (!Instance.HasPermission(player, equipment.Permission.ToLower(), equipment.Team.ToLower()))
+                    continue;
 
-        if (Instance.Config.MenuBackButton)
-        {
-            subMenu.Add(Instance.Localizer["menu<back>"], (player, menuOption) =>
+                bool isEquipped = equippedItems.Values.Any(e => e.Name.Equals(equipment.Name, StringComparison.OrdinalIgnoreCase));
+
+                string itemTitle = isEquipped
+                    ? $"{equipment.Name} {Instance.Localizer["menu<equipped>"]}"
+                    : $"{equipment.Name}";
+
+                subMenu.Add(itemTitle, (player, menuOption) =>
+                {
+                    ExecuteOption(player, equipment, title);
+                    SubMenu(player, category, title);
+                });
+            }
+
+            if (Instance.Config.MenuBackButton)
             {
-                Open_MainMenu(player);
-            });
-        }
+                subMenu.Add(Instance.Localizer["menu<back>"], (player, menuOption) =>
+                {
+                    MainMenu(player);
+                });
+            }
 
-        WasdManager.OpenMainMenu(player, subMenu);
+            WasdManager.OpenMainMenu(player, subMenu);
+        }
     }
 }

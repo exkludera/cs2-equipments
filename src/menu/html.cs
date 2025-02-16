@@ -1,60 +1,61 @@
 ﻿using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
 
-public static class MenuHTML
+public static partial class Menu
 {
-    private static Plugin Instance = Plugin.Instance;
-
-    public static void Open_MainMenu(CCSPlayerController player)
+    public static class HTML
     {
-        var mainMenu = new CenterHtmlMenu(Instance.Localizer["menu<title>"], Instance);
-
-        foreach (var category in Instance.Config.Categories)
+        public static void MainMenu(CCSPlayerController player)
         {
-            if (!Instance.HasPermission(player, category.Value.Permission.ToLower(), category.Value.Team.ToLower()))
-                continue;
+            var mainMenu = new CenterHtmlMenu(Instance.Localizer["menu<title>"], Instance);
 
-            mainMenu.AddMenuOption(category.Key, (player, menuOption) =>
+            foreach (var category in Instance.Config.Categories)
             {
-                Open_SubMenu(player, category.Value, category.Key);
-            });
+                if (!Instance.HasPermission(player, category.Value.Permission.ToLower(), category.Value.Team.ToLower()))
+                    continue;
+
+                mainMenu.AddMenuOption(category.Key, (player, menuOption) =>
+                {
+                    SubMenu(player, category.Value, category.Key);
+                });
+            }
+
+            MenuManager.OpenCenterHtmlMenu(Instance, player, mainMenu);
         }
 
-        MenuManager.OpenCenterHtmlMenu(Instance, player, mainMenu);
-    }
-
-    public static void Open_SubMenu(CCSPlayerController player, MenuCategory category, string title)
-    {
-        var subMenu = new CenterHtmlMenu(title, Instance);
-
-        var equippedItems = Instance.GetEquippedItems(player);
-
-        foreach (var equipment in category.Equipment)
+        public static void SubMenu(CCSPlayerController player, MenuCategory category, string title)
         {
-            if (!Instance.HasPermission(player, equipment.Permission.ToLower(), equipment.Team.ToLower()))
-                continue;
+            var subMenu = new CenterHtmlMenu(title, Instance);
 
-            bool isEquipped = equippedItems.Values.Any(e => e.Name.Equals(equipment.Name, StringComparison.OrdinalIgnoreCase));
+            var equippedItems = Instance.GetEquippedItems(player);
 
-            string itemTitle = isEquipped
-                ? $"{equipment.Name} {Instance.Localizer["menu<equipped>"]}"
-                : $"{equipment.Name}";
-
-            subMenu.AddMenuOption(itemTitle, (player, menuOption) =>
+            foreach (var equipment in category.Equipment)
             {
-                Menu.ExecuteOption(player, equipment, title);
-                Open_SubMenu(player, category, title);
-            });
-        }
+                if (!Instance.HasPermission(player, equipment.Permission.ToLower(), equipment.Team.ToLower()))
+                    continue;
 
-        if (Instance.Config.MenuBackButton)
-        {
-            subMenu.AddMenuOption(Instance.Localizer["menu<back>"], (player, menuOption) =>
+                bool isEquipped = equippedItems.Values.Any(e => e.Name.Equals(equipment.Name, StringComparison.OrdinalIgnoreCase));
+
+                string itemTitle = isEquipped
+                    ? $"{equipment.Name} {Instance.Localizer["menu<equipped>"]}"
+                    : $"{equipment.Name}";
+
+                subMenu.AddMenuOption(itemTitle, (player, menuOption) =>
+                {
+                    ExecuteOption(player, equipment, title);
+                    SubMenu(player, category, title);
+                });
+            }
+
+            if (Instance.Config.MenuBackButton)
             {
-                Open_MainMenu(player);
-            });
-        }
+                subMenu.AddMenuOption(Instance.Localizer["menu<back>"], (player, menuOption) =>
+                {
+                    MainMenu(player);
+                });
+            }
 
-        MenuManager.OpenCenterHtmlMenu(Instance, player, subMenu);
+            MenuManager.OpenCenterHtmlMenu(Instance, player, subMenu);
+        }
     }
 }

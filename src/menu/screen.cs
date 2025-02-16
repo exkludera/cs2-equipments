@@ -1,31 +1,31 @@
 ﻿using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Menu;
+using CS2ScreenMenuAPI;
 
 public static partial class Menu
 {
-    public static class Chat
+    public static class Screen
     {
         public static void MainMenu(CCSPlayerController player)
         {
-            var mainMenu = new ChatMenu(Instance.Localizer["menu<title>"]);
+            ScreenMenu mainMenu = new ScreenMenu(Instance.Localizer["menu<title>"], Instance);
 
             foreach (var category in Instance.Config.Categories)
             {
                 if (!Instance.HasPermission(player, category.Value.Permission.ToLower(), category.Value.Team.ToLower()))
                     continue;
 
-                mainMenu.AddMenuOption(category.Key, (player, menuOption) =>
+                mainMenu.AddOption(category.Key, (player, menuOption) =>
                 {
                     SubMenu(player, category.Value, category.Key);
                 });
             }
 
-            MenuManager.OpenChatMenu(player, mainMenu);
+            MenuAPI.OpenMenu(Instance, player, mainMenu);
         }
 
         public static void SubMenu(CCSPlayerController player, MenuCategory category, string title)
         {
-            var subMenu = new ChatMenu(title);
+            ScreenMenu subMenu = new ScreenMenu(title, Instance);
 
             var equippedItems = Instance.GetEquippedItems(player);
 
@@ -40,7 +40,7 @@ public static partial class Menu
                     ? $"{equipment.Name} {Instance.Localizer["menu<equipped>"]}"
                     : $"{equipment.Name}";
 
-                subMenu.AddMenuOption(itemTitle, (player, menuOption) =>
+                subMenu.AddOption(itemTitle, (player, menuOption) =>
                 {
                     ExecuteOption(player, equipment, title);
                     SubMenu(player, category, title);
@@ -49,13 +49,13 @@ public static partial class Menu
 
             if (Instance.Config.MenuBackButton)
             {
-                subMenu.AddMenuOption(Instance.Localizer["menu<back>"], (player, menuOption) =>
+                subMenu.AddOption(Instance.Localizer["menu<back>"], (player, menuOption) =>
                 {
                     MainMenu(player);
                 });
             }
 
-            MenuManager.OpenChatMenu(player, subMenu);
+            MenuAPI.OpenMenu(Instance, player, subMenu);
         }
     }
 }

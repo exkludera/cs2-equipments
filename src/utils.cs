@@ -4,6 +4,30 @@ using CounterStrikeSharp.API.Modules.Utils;
 
 public partial class Plugin : BasePlugin, IPluginConfig<Config>
 {
+    public void OnServerPrecacheResources(ResourceManifest manifest)
+    {
+        foreach (var category in Config.Categories.Values)
+        {
+            foreach (var equipment in category.Equipment)
+            {
+                if (!string.IsNullOrEmpty(equipment.Model))
+                    manifest.AddResource(equipment.Model);
+
+                if (!string.IsNullOrEmpty(equipment.Particle))
+                    manifest.AddResource(equipment.Particle);
+
+                if (!string.IsNullOrEmpty(equipment.Weapon))
+                {
+                    var weaponpart = equipment.Weapon.Split(':');
+                    if (weaponpart.Length != 2)
+                        continue;
+
+                    manifest.AddResource(weaponpart[1]);
+                }
+            }
+        }
+    }
+
     public bool HasPermission(CCSPlayerController player, string Permission, string Team)
     {
         string permission = Permission.ToLower();

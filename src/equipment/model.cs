@@ -5,7 +5,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
 {
     public Dictionary<CCSPlayerController, Dictionary<string, List<CBaseModelEntity>>> playerModels = new();
 
-    public HookResult EventPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
+    HookResult EventPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
         var player = @event.Userid;
 

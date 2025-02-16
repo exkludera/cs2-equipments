@@ -4,8 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 
 public partial class Plugin : BasePlugin, IPluginConfig<Config>
 {
-    public int Tick;
-    public void OnTick()
+    int Tick;
+    void OnTick()
     {
         Tick++;
 
