@@ -19,7 +19,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
                 if (!string.IsNullOrEmpty(equipment.Weapon))
                 {
                     var weaponpart = equipment.Weapon.Split(':');
-                    if (weaponpart.Length != 2 || weaponpart.Length != 3)
+                    if (weaponpart.Length != 2 && weaponpart.Length != 3)
                         continue;
 
                     if (weaponpart.Length == 3)

@@ -74,7 +74,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
                 }
 
                 var weaponpart = item.Value.Weapon.Split(':');
-                if (weaponpart.Length != 2 || weaponpart.Length != 3)
+                if (weaponpart.Length != 2 && weaponpart.Length != 3)
                     return;
 
                 string weaponName = weaponpart[0];
@@ -174,7 +174,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
             if (player.PawnIsAlive)
             {
                 var weaponpart = modelName.Split(':');
-                if (weaponpart.Length != 2 || weaponpart.Length != 3)
+                if (weaponpart.Length != 2 && weaponpart.Length != 3)
                     return false;
 
                 string weaponName = weaponpart[0];
