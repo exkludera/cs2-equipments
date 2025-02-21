@@ -38,9 +38,9 @@
 **Team** - Default: `""` (T for Terrorist, CT for CounterTerrorist or empty for both) <br>
 
 **Name** - Default: `"Model Name"` (the title of the item in the menu) <br>
-**Model** - Default: `""` (model file the player will equip) <br>
-**Particle** - Default: `""` (particle file the player will equip) <br>
-**Weapon** - Default: `""` (weapon model file, use weapon name split by `:` then file `weapon_awp:models/example.vmdl`) another split `:` if world model <br>
+**Model** - Default: `""` (model file) <br>
+**Particle** - Default: `""` (particle file) <br>
+**Weapon** - Default: `""` (`weapon:model` example: `weapon_awp:models/example.vmdl` & if world model split again `:`) <br>
 
 ```json
 {
@@ -90,7 +90,7 @@
         },
         {
           "Name": "Custom AWP",
-          "Weapon": "weapon_awp:models/example_awp.vmdl"
+          "Weapon": "weapon_awp:models/v_example_awp.vmdl:w_example_awp.vmdl"
         }
       ]
     }
