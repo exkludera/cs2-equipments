@@ -19,8 +19,11 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
                 if (!string.IsNullOrEmpty(equipment.Weapon))
                 {
                     var weaponpart = equipment.Weapon.Split(':');
-                    if (weaponpart.Length != 2)
+                    if (weaponpart.Length != 2 || weaponpart.Length != 3)
                         continue;
+
+                    if (weaponpart.Length == 3)
+                        manifest.AddResource(weaponpart[2]);
 
                     manifest.AddResource(weaponpart[1]);
                 }
