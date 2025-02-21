@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API.Core;
 using CS2ScreenMenuAPI;
+using CS2ScreenMenuAPI.Internal;
 
 public static partial class Menu
 {
