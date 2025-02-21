@@ -40,7 +40,7 @@
 **Name** - Default: `"Model Name"` (the title of the item in the menu) <br>
 **Model** - Default: `""` (model file the player will equip) <br>
 **Particle** - Default: `""` (particle file the player will equip) <br>
-**Weapon** - Default: `""` (weapon model file, use weapon name split by `:` then file `weapon_awp:models/example.vmdl`) <br>
+**Weapon** - Default: `""` (weapon model file, use weapon name split by `:` then file `weapon_awp:models/example.vmdl`) another split `:` if world model <br>
 
 ```json
 {

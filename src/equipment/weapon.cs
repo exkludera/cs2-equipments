@@ -74,15 +74,19 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
                 }
 
                 var weaponpart = item.Value.Weapon.Split(':');
-                if (weaponpart.Length != 2)
-                    continue;
+                if (weaponpart.Length != 2 || weaponpart.Length != 3)
+                    return;
 
-                var weaponName = weaponpart[0];
-                var weaponModel = weaponpart[1];
+                string weaponName = weaponpart[0];
+                string weaponModel = weaponpart[1];
+                string worldModel = weaponpart[1];
+
+                if (weaponpart.Length == 3)
+                    worldModel = weaponpart[2];
 
                 if (weaponDesignerName == weaponName)
                 {
-                    Weapon.UpdateModel(player, weapon, weaponModel, weapon == activeWeapon);
+                    Weapon.UpdateModel(player, weapon, weaponModel, worldModel, weapon == activeWeapon);
                     break;
                 }
             }
@@ -140,10 +144,10 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
             ViewModel(player)?.SetModel(model);
         }
 
-        public static void UpdateModel(CCSPlayerController player, CBasePlayerWeapon weapon, string model, bool update)
+        public static void UpdateModel(CCSPlayerController player, CBasePlayerWeapon weapon, string model, string worldmodel, bool update)
         {
             weapon.Globalname = $"{GetViewModel(player)},{model}";
-            weapon.SetModel(model);
+            weapon.SetModel(worldmodel);
 
             if (update)
                 SetViewModel(player, model);
@@ -170,11 +174,15 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
             if (player.PawnIsAlive)
             {
                 var weaponpart = modelName.Split(':');
-                if (weaponpart.Length != 2)
+                if (weaponpart.Length != 2 || weaponpart.Length != 3)
                     return false;
 
-                var weaponName = weaponpart[0];
-                var weaponModel = weaponpart[1];
+                string weaponName = weaponpart[0];
+                string weaponModel = weaponpart[1];
+                string worldModel = weaponpart[1];
+
+                if (weaponpart.Length == 3)
+                    worldModel = weaponpart[2];
 
                 CBasePlayerWeapon? weapon = Get(player, weaponName);
 
@@ -183,7 +191,7 @@ public partial class Plugin : BasePlugin, IPluginConfig<Config>
                     bool equip = weapon == player.PlayerPawn.Value?.WeaponServices?.ActiveWeapon.Value;
 
                     if (isEquip)
-                        UpdateModel(player, weapon, weaponModel, equip);
+                        UpdateModel(player, weapon, weaponModel, worldModel, equip);
 
                     else ResetWeapon(player, weapon, equip);
 
