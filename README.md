@@ -37,6 +37,9 @@
 **Permission** - Default: `""` (empty for no check, @css/reservation for vip) <br>
 **Team** - Default: `""` (T for Terrorist, CT for CounterTerrorist or empty for both) <br>
 
+**MenuBackButton** - Default: `false` (adds a menu option to go back) <br>
+**MenuEquipOpenMain** - Default: `false` (opens main menu on equip) <br>
+
 **Name** - Default: `"Model Name"` (the title of the item in the menu) <br>
 **Model** - Default: `""` (model file) <br>
 **Particle** - Default: `""` (particle file) <br>
@@ -47,7 +50,6 @@
   "Prefix": "{orange}[Equipments]{default}",
   "MenuCommands": "css_equipments,css_equipment",
   "MenuType": "html",
-  "MenuBackButton": false,
   "Permission": "",
   "Team": "",
   "Categories": {

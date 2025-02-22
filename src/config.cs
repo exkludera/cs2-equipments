@@ -5,7 +5,6 @@ public class Config : BasePluginConfig
     public string Prefix { get; set; } = "{orange}[Equipments]{default}";
     public string MenuCommands { get; set; } = "css_equipments,css_equipment";
     public string MenuType { get; set; } = "html";
-    public bool MenuBackButton { get; set; } = false;
     public string Permission { get; set; } = "";
     public string Team { get; set; } = "";
 
@@ -81,6 +80,8 @@ public class MenuCategory
     public bool AllowMultiple { get; set; } = false;
     public string Permission { get; set; } = "";
     public string Team { get; set; } = "";
+    public bool MenuBackButton { get; set; } = false;
+    public bool MenuEquipOpenMain { get; set; } = false;
     public List<Equipment> Equipment { get; set; } = new List<Equipment>();
 }
 

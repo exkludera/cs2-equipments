@@ -5,7 +5,7 @@ using static CounterStrikeSharp.API.Core.Listeners;
 public partial class Plugin : BasePlugin, IPluginConfig<Config>
 {
     public override string ModuleName => "Equipments";
-    public override string ModuleVersion => "1.0.3";
+    public override string ModuleVersion => "1.0.4";
     public override string ModuleAuthor => "exkludera";
 
     public static Plugin Instance { get; set; } = new();

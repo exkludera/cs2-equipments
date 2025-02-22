@@ -46,11 +46,13 @@ public static partial class Menu
                 subMenu.Add(itemTitle, (player, menuOption) =>
                 {
                     ExecuteOption(player, equipment, title);
-                    SubMenu(player, category, title);
+
+                    if (category.MenuEquipOpenMain) MainMenu(player);
+                    else SubMenu(player, category, title);
                 });
             }
 
-            if (Instance.Config.MenuBackButton)
+            if (category.MenuBackButton)
             {
                 subMenu.Add(Instance.Localizer["menu<back>"], (player, menuOption) =>
                 {
