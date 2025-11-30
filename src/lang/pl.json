@@ -1,9 +1,0 @@
-{
-  "menu<title>": "Ekwipunek",
-  "menu<back>": "-> Wróć do menu",
-  "menu<equipped>": "( ✔ )",
-
-  "chat<equip>": "{white}Wyposażyłeś {purple}{0}{white}.",
-  "chat<unequip>": "{white}Zdjąłeś {purple}{0}{white}.",
-  "chat<nopermission>": "{red}Nie masz uprawnień do używania tej komendy."
-}

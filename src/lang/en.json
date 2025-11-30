@@ -1,9 +1,0 @@
-{
-  "menu<title>": "Equipments",
-  "menu<back>": "-> Back to menu",
-  "menu<equipped>": "( ✔ )",
-
-  "chat<equip>": "{white}You equipped {purple}{0}{white}.",
-  "chat<unequip>": "{white}You unequipped {purple}{0}{white}.",
-  "chat<nopermission>": "{red}You don't have permission to use this command."
-}

@@ -18,9 +18,8 @@
 ### requirements
 - [MetaMod](https://github.com/alliedmodders/metamod-source)
 - [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp)
-- [Cruze03/Clientprefs](https://github.com/Cruze03/Clientprefs)
-- [Interesting-exe/WASDMenuAPI](https://github.com/Interesting-exe/WASDMenuAPI) (optional)
-- [T3Marius/CS2ScreenMenuAPI](https://github.com/T3Marius/CS2ScreenMenuAPI) (optional)
+- [Clientprefs](https://github.com/Cruze03/Clientprefs)
+- [CS2MenuManager](https://github.com/schwarper/CS2MenuManager)
 
 <br>
 
@@ -31,70 +30,72 @@
 
 ## example config
 
-**MenuType** - Default: `"html"` (options: chat/html/wasd/screen) <br>
+**Menu** - Default: `"CenterHtmlMenu"` (ChatMenu/WasdMenu/PlayerMenu) <br>
 
+**Command** - Default: `[""]` (command per category, example: `css_hats`) <br>
 **AllowMultiple** - Default: `false` (false = only 1 selection per category, true = can equip all at the same time) <br>
-**Permission** - Default: `""` (empty for no check, @css/reservation for vip) <br>
+**Permission** - Default: `[""]` (empty for no check, @css/reservation for vip) <br>
 **Team** - Default: `""` (T for Terrorist, CT for CounterTerrorist or empty for both) <br>
 
-**MenuBackButton** - Default: `false` (adds a menu option to go back) <br>
-**MenuEquipOpenMain** - Default: `false` (opens main menu on equip) <br>
-
-**Name** - Default: `"Model Name"` (the title of the item in the menu) <br>
+**Name** - Default: `"Equipment Name"` (the title of the item in the menu) <br>
 **Model** - Default: `""` (model file) <br>
 **Particle** - Default: `""` (particle file) <br>
-**Weapon** - Default: `""` (`weapon:model` example: `weapon_awp:models/example.vmdl` & if world model split again `:`) <br>
+**Weapon** - Default: `""` (`weapon:subclass` example: `weapon_awp:weapon_awp_subclass`, subclasses are defined in `scripts/weapons.vdata`) <br>
 
 ```json
 {
   "Prefix": "{orange}[Equipments]{default}",
-  "MenuCommands": "css_equipments,css_equipment",
-  "MenuType": "html",
-  "Permission": "",
-  "Team": "",
+  "Menu": {
+    "Command": ["css_equipments", "css_equipment"],
+    "MenuType": "CenterHtmlMenu",
+    "Permission": "@css/reservation",
+    "Team": "",
+  },
   "Categories": {
     "Hats": {
-      "AllowMultiple": false,
-      "Equipment": [
-        {
-          "Name": "Hat #1",
-          "Model": "models/example_1.vmdl"
-        },
-        {
-          "Name": "Hat #2",
-          "Model": "models/example_2.vmdl"
-        }
+      "Command": ["css_hats"],
+      "Permission": ["@css/reservation"],
+      "Team": "CT",
+      "Equipment":
+      [
+        { "Name": "Hat #1", "Model": "models/hat_1.vmdl" },
+        { "Name": "Hat #2", "Model": "models/hat_2.vmdl" }
       ]
     },
     "Particles": {
       "AllowMultiple": true,
-      "Permission": "@css/reservation",
-      "Team": "CT",
-      "Equipment": [
-        {
-          "Name": "Particle #1",
-          "Particle": "particles/example_1.vpcf"
-        },
-        {
-          "Name": "Particle #2",
-          "Particle": "particles/example_2.vpcf"
-        }
+      "Permission": ["@css/generic"],
+      "Team": "T",
+      "Equipment":
+      [
+        { "Name": "Particle #1", "Particle": "particles/particle_1.vpcf" },
+        { "Name": "Particle #2", "Particle": "particles/particle_2.vpcf" }
       ]
     },
     "Weapons": {
       "AllowMultiple": true,
-      "Equipment": [
-        {
-          "Permission": "@css/root",
-          "Team": "T",
-          "Name": "Custom AK47",
-          "Weapon": "weapon_ak47:models/example_ak47.vmdl"
+      "Permission": ["@css/root"],
+      "Equipment":
+      [
+        { "Name": "Knife 1", "Weapon": "weapon_knife:weapon_knife_subclass1" },
+        { "Name": "Knife 2", "Weapon": "weapon_knife:weapon_knife_subclass2" }
+      ],
+      "Category": {
+        "CT Examples": {
+          "Team": "CT",
+          "Equipment":
+          [
+            { "Name": "AWP CT", "Weapon": "weapon_awp:weapon_awp_subclass_ct" }
+          ]
         },
-        {
-          "Name": "Custom AWP",
-          "Weapon": "weapon_awp:models/v_example_awp.vmdl:w_example_awp.vmdl"
+        "T Examples": {
+          "Team": "T",
+          "Equipment":
+          [
+            { "Name": "AWP T", "Weapon": "weapon_awp:weapon_awp_subclass_t" }
+          ]
         }
-      ]
+      }
     }
   }
 }

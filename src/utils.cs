@@ -1,131 +1,187 @@
 ﻿using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Utils;
+using Microsoft.Extensions.Logging;
 
-public partial class Plugin : BasePlugin, IPluginConfig<Config>
+public static class Utils
 {
-    public void OnServerPrecacheResources(ResourceManifest manifest)
+    private static readonly Plugin Instance = Plugin.Instance;
+
+    public static void LogError(string message)
     {
-        foreach (var category in Config.Categories.Values)
+        Instance.Logger.LogError(message);
+    }
+
+    public static bool HasPermission(CCSPlayerController player, List<string> permissions, string team = "")
+    {
+        bool requireCheck = permissions != null && permissions.Any(p => !string.IsNullOrWhiteSpace(p));
+        bool hasPermission = !requireCheck;
+
+        if (requireCheck)
         {
-            foreach (var equipment in category.Equipment)
+            foreach (string permission in permissions!)
             {
-                if (!string.IsNullOrEmpty(equipment.Model))
-                    manifest.AddResource(equipment.Model);
+                if (!string.IsNullOrWhiteSpace(permission) && permission.StartsWith("@") && AdminManager.PlayerHasPermissions(player, permission)) { hasPermission = true; break; }
+                if (!string.IsNullOrWhiteSpace(permission) && permission.StartsWith("#") && AdminManager.PlayerInGroup(player, permission)) { hasPermission = true; break; }
+            }
+        }
 
-                if (!string.IsNullOrEmpty(equipment.Particle))
-                    manifest.AddResource(equipment.Particle);
+        team = (team ?? string.Empty).ToLower();
+        bool isTeamValid =
+            ((team == "t" || team == "terrorist") && player.Team == CsTeam.Terrorist) ||
+            ((team == "ct" || team == "counterterrorist") && player.Team == CsTeam.CounterTerrorist) ||
+            string.IsNullOrEmpty(team) || team == "both" || team == "all";
 
-                if (!string.IsNullOrEmpty(equipment.Weapon))
-                {
-                    var weaponpart = equipment.Weapon.Split(':');
-                    if (weaponpart.Length != 2 && weaponpart.Length != 3)
-                        continue;
+        return hasPermission && isTeamValid;
+    }
 
-                    if (weaponpart.Length == 3)
-                        manifest.AddResource(weaponpart[2]);
+    // Traverse all categories recursively and yield fullPath -> MenuCategory
+    public static IEnumerable<(string fullPath, MenuCategory category)> EnumerateCategories()
+    {
+        foreach (var kv in Instance.Config.Categories)
+        {
+            foreach (var item in EnumerateCategoriesRecursive(kv.Key, kv.Value))
+                yield return item;
+        }
+    }
 
-                    manifest.AddResource(weaponpart[1]);
-                }
+    private static IEnumerable<(string fullPath, MenuCategory category)> EnumerateCategoriesRecursive(string path, MenuCategory category)
+    {
+        yield return (path, category);
+        if (category.SubCategories == null) yield break;
+        foreach (var kv in category.SubCategories)
+        {
+            var newPath = string.IsNullOrEmpty(path) ? kv.Key : $"{path}-{kv.Key}";
+            foreach (var item in EnumerateCategoriesRecursive(newPath, kv.Value))
+                yield return item;
+        }
+    }
+
+    public static bool TryFindCategory(string fullPath, out MenuCategory category)
+    {
+        foreach (var (p, c) in EnumerateCategories())
+        {
+            if (string.Equals(p, fullPath, StringComparison.OrdinalIgnoreCase))
+            {
+                category = c;
+                return true;
+            }
+        }
+        category = default!; 
+        return false;
+    }
+
+    // Get currently equipped selections for a player across all categories
+    public static IEnumerable<(string fullPath, Equipment equipment, MenuCategory category)> GetEquippedSelections(CCSPlayerController player)
+    {
+        if (!Cookies.playerCookies.TryGetValue(player.Slot, out var cookies) || cookies.Count ==0)
+            yield break;
+
+        foreach (var (fullPath, category) in EnumerateCategories())
+        {
+            // Skip categories the player no longer has access to
+            if (!HasPermission(player, category.Permission, category.Team))
+                continue;
+            foreach (var eq in category.Equipment)
+            {
+                // Skip equipment the player no longer has access to
+                if (!HasPermission(player, eq.Permission, eq.Team))
+                    continue;
+                var cookieName = Cookies.BuildCookieName(fullPath, eq.Name);
+                if (cookies.TryGetValue(cookieName, out var value) && !string.IsNullOrEmpty(value))
+                    yield return (fullPath, eq, category);
             }
         }
     }
 
-    public bool HasPermission(CCSPlayerController player, string Permission, string Team)
+    // Toggle an equipment selection and persist via Clientprefs
+    public static void ToggleEquipment(CCSPlayerController player, string fullPath, MenuCategory category, Equipment equipment)
     {
-        string permission = Permission.ToLower();
-        string team = Team.ToLower();
+        if (Cookies.ClientprefsApi == null) return;
 
-        bool isTeamValid = (team == "t" || team == "terrorist") && player.Team == CsTeam.Terrorist ||
-                    (team == "ct" || team == "counterterrorist") && player.Team == CsTeam.CounterTerrorist ||
-                    (team == "" || team == "both" || team == "all");
+        // Respect current access when toggling
+        if (!HasPermission(player, category.Permission, category.Team)) return;
+        if (!HasPermission(player, equipment.Permission, equipment.Team)) return;
+        var cookieName = Cookies.BuildCookieName(fullPath, equipment.Name);
+        if (!Cookies.equipmentCookies.TryGetValue(cookieName, out var cookieId)) return;
 
-        return (string.IsNullOrEmpty(permission) || AdminManager.PlayerHasPermissions(player, permission)) && isTeamValid;
-    }
+        Cookies.playerCookies.TryAdd(player.Slot, new());
+        var cookies = Cookies.playerCookies[player.Slot];
+        bool isEnabled = cookies.TryGetValue(cookieName, out var value) && !string.IsNullOrEmpty(value);
 
-    public string DetermineEquipmentType(Equipment equipment)
-    {
-        if (!string.IsNullOrEmpty(equipment.Model)) return "model";
-        if (!string.IsNullOrEmpty(equipment.Particle)) return "particle";
-        if (!string.IsNullOrEmpty(equipment.Weapon)) return "weapon";
-        return "unknown";
-    }
-
-    public string GetEquipmentFilePath(Equipment equipment, string type)
-    {
-        return type switch
+        if (category.AllowMultiple)
         {
-            "model" => equipment.Model,
-            "particle" => equipment.Particle,
-            "weapon" => equipment.Weapon,
-            _ => throw new ArgumentException($"Unknown equipment type: {type}")
-        };
-    }
-
-    public Dictionary<string, Equipment> GetEquippedItems(CCSPlayerController player)
-    {
-        var equippedItems = new Dictionary<string, Equipment>();
-
-        if (playerCookies.TryGetValue(player.Slot, out var cookies))
-        {
-            foreach (var category in Config.Categories)
+            // Toggle this item only
+            if (isEnabled)
             {
-                if (category.Value.AllowMultiple)
+                Cookies.ClientprefsApi.SetPlayerCookie(player, cookieId, "");
+                cookies.Remove(cookieName);
+                RemoveEquipment(player, category, equipment);
+            }
+            else
+            {
+                Cookies.ClientprefsApi.SetPlayerCookie(player, cookieId, "1");
+                cookies[cookieName] = "1";
+                ApplyEquipment(player, category, equipment);
+            }
+        }
+        else
+        {
+            // Single-choice: if the clicked item is already enabled, clear all in this category (deselect)
+            if (isEnabled)
+            {
+                foreach (var eq in category.Equipment)
                 {
-                    foreach (var equipment in category.Value.Equipment)
-                    {
-                        string cookieName = $"Equipment-{category.Key}-{equipment.Name}";
-                        if (cookies.TryGetValue(cookieName, out var equippedName) && equippedName == equipment.Name)
-                            equippedItems[cookieName] = equipment;
-                    }
+                    var cn = Cookies.BuildCookieName(fullPath, eq.Name);
+                    if (!Cookies.equipmentCookies.TryGetValue(cn, out var id)) continue;
+                    Cookies.ClientprefsApi.SetPlayerCookie(player, id, "");
+                    if (cookies.ContainsKey(cn)) { cookies.Remove(cn); RemoveEquipment(player, category, eq); }
+                }
+                return;
+            }
+
+            // Otherwise, enable selected and disable others in the same category
+            foreach (var eq in category.Equipment)
+            {
+                var cn = Cookies.BuildCookieName(fullPath, eq.Name);
+                if (!Cookies.equipmentCookies.TryGetValue(cn, out var id)) continue;
+
+                if (eq.Name.Equals(equipment.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    Cookies.ClientprefsApi.SetPlayerCookie(player, id, "1");
+                    cookies[cn] = "1";
+                    ApplyEquipment(player, category, eq);
                 }
                 else
                 {
-                    string cookieName = $"Equipment-{category.Key}";
-                    if (cookies.TryGetValue(cookieName, out var equippedName))
-                    {
-                        var equipment = category.Value.Equipment.FirstOrDefault(m => m.Name.Equals(equippedName, StringComparison.OrdinalIgnoreCase));
-                        if (equipment != null)
-                            equippedItems[cookieName] = equipment;
-                    }
+                    Cookies.ClientprefsApi.SetPlayerCookie(player, id, "");
+                    if (cookies.ContainsKey(cn)) { cookies.Remove(cn); RemoveEquipment(player, category, eq); }
                 }
             }
         }
-
-        return equippedItems;
     }
 
-    public void EquipBasedOnType(CCSPlayerController player, Equipment equipment, string category)
+    public static void ApplyEquipment(CCSPlayerController player, MenuCategory category, Equipment equipment)
     {
         if (!string.IsNullOrEmpty(equipment.Model))
-        {
-            EquipModel(player, equipment.Model, category);
-        }
-        else if (!string.IsNullOrEmpty(equipment.Particle))
-        {
-            //EquipParticle(player, equipment.Particle, category);
-        }
-        else if (!string.IsNullOrEmpty(equipment.Weapon))
-        {
-            EquipWeapon(player, equipment.Weapon);
-        }
+            Models.Equip(player, category, equipment.Model);
+
+        if (!string.IsNullOrEmpty(equipment.Particle))
+            Particles.Equip(player, category, player.PlayerPawn.Value?.AbsOrigin!, equipment.Particle);
+
+        if (!string.IsNullOrEmpty(equipment.Weapon))
+            Weapons.Equip(player, category, equipment.Weapon);
     }
 
-    public void UnequipBasedOnType(CCSPlayerController player, string type, string category, string file)
+    public static void RemoveEquipment(CCSPlayerController player, MenuCategory category, Equipment equipment)
     {
-        switch (type)
-        {
-            case "model":
-                UnequipModel(player, category, file);
-                break;
-            case "particle":
-                //UnequipParticle(player, category, file);
-                break;
-            case "weapon":
-                UnequipWeapon(player, category, file, true);
-                break;
-            default:
-                throw new ArgumentException($"Unknown equipment type: {type}");
-        }
+        if (!string.IsNullOrEmpty(equipment.Model))
+            Models.Unequip(player, category, equipment.Model);
+
+        if (!string.IsNullOrEmpty(equipment.Particle))
+            Particles.Unequip(player, category, equipment.Particle);
+
+        if (!string.IsNullOrEmpty(equipment.Weapon))
+            Weapons.Unequip(player, category, equipment.Weapon);
     }
 }

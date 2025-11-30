@@ -3,3 +3,4 @@
 **/bin
 **/Properties
 **/*.csproj.user
+src/en.json
