@@ -48,7 +48,7 @@
   "Menu": {
     "Command": ["css_equipments", "css_equipment"],
     "MenuType": "CenterHtmlMenu",
-    "Permission": "@css/reservation",
+    "Permission": ["@css/reservation"],
     "Team": "",
   },
   "Categories": {
