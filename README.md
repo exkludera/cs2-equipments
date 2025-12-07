@@ -1,35 +1,41 @@
-# cs2-equipments
-**a plugin that allows players to equip, models, particles & weapons (like hats, backpacks, trails & custom weapon models)**
+<div align="center">
+  <img width="50" height="50" alt="cssharp" src="https://github.com/user-attachments/assets/3393573f-29be-46e1-bc30-fafaec573456" />
+	<h3><strong>Equipments</strong></h3>
+	<h4>a plugin that allows players to equip models, particles & weapons</h4>
+	<h2>
+		<img src="https://img.shields.io/github/downloads/exkludera-cssharp/equipments/total" alt="Downloads">
+		<img src="https://img.shields.io/github/stars/exkludera-cssharp/equipments?style=flat&logo=github" alt="Stars">
+		<img src="https://img.shields.io/github/forks/exkludera-cssharp/equipments?style=flat&logo=github" alt="Forks">
+		<img src="https://img.shields.io/github/license/exkludera-cssharp/equipments" alt="License">
+	</h2>
+	<!--<a href="https://discord.gg" target="_blank"><img src="https://img.shields.io/badge/Discord%20Server-7289da?style=for-the-badge&logo=discord&logoColor=white" /></a> <br>-->
+	<a href="https://ko-fi.com/exkludera" target="_blank"><img src="https://img.shields.io/badge/KoFi-af00bf?style=for-the-badge&logo=kofi&logoColor=white" alt="Buy Me a Coffee at ko-fi.com" /></a>
+	<a href="https://paypal.com/donate/?hosted_button_id=6AWPNVF5TLUC8" target="_blank"><img src="https://img.shields.io/badge/PayPal-0095ff?style=for-the-badge&logo=paypal&logoColor=white" alt="PayPal"  /></a>
+	<a href="https://github.com/sponsors/exkludera" target="_blank"><img src="https://img.shields.io/badge/Sponsor-696969?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Sponsor" /></a>
+</div>
 
-<br>
+> [!WARNING]
+> models must have a player bone or it will not attach to the player
 
-<details>
-	<summary>showcase</summary>
-	<img src="https://github.com/exkludera/cs2-equipments/assets/51145038/37b60f6f-e1c3-4257-aee8-4bea23e8735a" width="200"> <br>
-	<img src="https://github.com/exkludera/cs2-equipments/assets/51145038/a7eb7832-6c3a-4edb-81cd-a38b3763044d" width="178">
-	<img src="https://github.com/exkludera/cs2-equipments/assets/51145038/e5ba25cf-4f31-4379-bbf5-139c00cb6f56" width="200">
-</details>
-
-<br>
-
-## information:
-
-
-### requirements
+## Requirements
 - [MetaMod](https://github.com/alliedmodders/metamod-source)
 - [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp)
 - [Clientprefs](https://github.com/Cruze03/Clientprefs)
 - [CS2MenuManager](https://github.com/schwarper/CS2MenuManager)
 
-<br>
+## Showcase
+<details>
+	<summary>content</summary>
+	<img src="https://github.com/exkludera/cs2-equipments/assets/51145038/37b60f6f-e1c3-4257-aee8-4bea23e8735a" width="200"> <br>
+	<img src="https://github.com/exkludera/cs2-equipments/assets/51145038/a7eb7832-6c3a-4edb-81cd-a38b3763044d" width="178">
+	<img src="https://github.com/exkludera/cs2-equipments/assets/51145038/e5ba25cf-4f31-4379-bbf5-139c00cb6f56" width="200">
+</details>
 
-> [!WARNING]
-> models must have a player bone or it will not attach to the player
+## Config
 
-<br>
-
-## example config
-
+<details>
+<summary>Equipments.json</summary>
+	
 **Menu** - Default: `"CenterHtmlMenu"` (ChatMenu/WasdMenu/PlayerMenu) <br>
 
 **Command** - Default: `[""]` (command per category, example: `css_hats`) <br>
@@ -100,5 +106,4 @@
   }
 }
 ```
-
-<br> <a href="https://ko-fi.com/exkludera" target="blank"><img src="https://cdn.ko-fi.com/cdn/kofi5.png" height="48px" alt="Buy Me a Coffee at ko-fi.com"></a>
+</details>
